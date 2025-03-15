@@ -22,9 +22,9 @@ CPPFLAGS := -nostdinc -D_LANGUAGE_C -DMIPS -DF3DEX_GBI_2 -DF3DEX_GBI_PL -DGBI_DO
 LDFLAGS  := -nostdlib -T $(LDSCRIPT) -Map $(BUILD_DIR)/mod.map --unresolved-symbols=ignore-all --emit-relocs -e 0 --no-nmagic
 
 ifeq ($(OS),Windows_NT)
-	C_SRCS := $(shell powershell -Command "Get-ChildItem ./src -include *.c -recurse -name | ForEach-Object { $$out_str = 'src/' + $$_.Replace('\', '/'); Write-Output $$out_str; } ")
+	C_SRCS != powershell -Command "Get-ChildItem ./src -include *.c -recurse -name | ForEach-Object { $$out_str = 'src/' + $$_.Replace('\', '/'); Write-Output $$out_str; } "
 else
-	C_SRCS := $(shell find src/** -name '*.c')
+	C_SRCS != find src/** -name '*.c'
 endif
 $(info $(C_SRCS))
 
