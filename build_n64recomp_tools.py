@@ -23,7 +23,6 @@ def _get_tool_path(tool_name: str) -> str:
 def get_dependencies(print_locations: bool = False) -> dict[str, str]:
     retVal = {
         'clang': shutil.which("clang"),
-        'clang-cl': shutil.which("clang-cl"),
         'git': shutil.which("git") ,
         'make': shutil.which("make"),
         'cmake': shutil.which("cmake"),
