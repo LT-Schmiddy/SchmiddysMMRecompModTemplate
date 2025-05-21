@@ -5,6 +5,7 @@ import build_mod as bm
 
 package_dir = bm.project_root.joinpath("thunderstore_package")
 
+deps = bnt.deps = bnt.deps
 
 def slugify(text: str) -> str:
     text = text.strip()
