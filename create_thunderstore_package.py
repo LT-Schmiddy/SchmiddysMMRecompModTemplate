@@ -1,11 +1,10 @@
 import subprocess, os, shutil, json, zipfile, re
 from pathlib import Path
-import build_n64recomp_tools as bnt
-import build_mod as bm
 
-package_dir = bm.project_root.joinpath("thunderstore_package")
+import make_python_functions as bm
 
-deps = bnt.deps = bnt.deps
+info = bm.ModInfo("./mod.toml", "build")
+package_dir = info.project_root.joinpath("thunderstore_package")
 
 def slugify(text: str) -> str:
     text = text.strip()
@@ -15,24 +14,24 @@ def slugify(text: str) -> str:
 
 
 def get_description() -> str:
-    description = re.sub(r'[\n]+', ' ', bm.mod_data["manifest"]["description"]).strip()
+    description = re.sub(r'[\n]+', ' ', info.mod_data["manifest"]["description"]).strip()
     if len(description) > 0 and len(description) <= 256:
         return description
-    return bm.mod_data["manifest"]["short_description"]
+    return info.mod_data["manifest"]["short_description"]
 
 
 def get_website_url() -> str:
-    if "website_url" in bm.mod_data["manifest"]:
-        return bm.mod_data["manifest"]["website_url"]
+    if "website_url" in info.mod_data["manifest"]:
+        return info.mod_data["manifest"]["website_url"]
 
     result = subprocess.run(
         [
-            deps["git"],
+            shutil.which("git"),
             "config", 
             "--get", 
             "remote.origin.url"
         ],
-        cwd=bm.project_root,
+        cwd=info.project_root,
         capture_output=True,
         text=True
     )
@@ -47,8 +46,8 @@ def get_website_url() -> str:
 
 def get_package_manifest() ->dict[str, str]:
     return {
-        "name":  slugify(bm.mod_data["manifest"]["display_name"]),
-        "version_number":  bm.mod_data["manifest"]["version"],
+        "name":  slugify(info.mod_data["manifest"]["display_name"]),
+        "version_number":  info.mod_data["manifest"]["version"],
         "website_url":  get_website_url(),
         "description":  get_description(),
         "dependencies":  []
@@ -78,7 +77,7 @@ def update_manifest(path: Path):
 
 def create_readme(path: Path):
     print(f"Creating readme at from description at '{path}'...")
-    readme_str = f"# {bm.mod_data['manifest']['display_name']}\n\n{bm.mod_data['manifest']['description']}"
+    readme_str = f"# {info.mod_data['manifest']['display_name']}\n\n{info.mod_data['manifest']['description']}"
     path.write_text(readme_str)
 
 
@@ -132,19 +131,17 @@ def create_package():
     
     icon_file = package_dir.joinpath("icon.png")
     if not icon_file.is_file():
-        fully_collected = fully_collected and copy_icon(bm.project_root.joinpath("thumb.png"), icon_file)
+        fully_collected = fully_collected and copy_icon(info.project_root.joinpath("thumb.png"), icon_file)
     
-    mod_file = package_dir.joinpath(bm.build_nrm_file.name)
-    fully_collected = fully_collected and copy_mod(bm.build_nrm_file, mod_file)
+    mod_file = package_dir.joinpath(info.build_nrm_file.name)
+    fully_collected = fully_collected and copy_mod(info.build_nrm_file, mod_file)
     
     if fully_collected:
         print("Fully collected. Zipping mod package.")
-        create_archive(package_dir, bm.project_root.joinpath(f"{bm.mod_data['inputs']['mod_filename']}.thunderstore.zip"))
+        create_archive(package_dir, info.project_root.joinpath(f"{info.mod_data['inputs']['mod_filename']}.thunderstore.zip"))
     else:
         print("Files are missing.")
     
-        
-        
 
 if __name__ == '__main__':
     create_package()
