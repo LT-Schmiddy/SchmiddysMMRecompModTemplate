@@ -1,4 +1,4 @@
-import subprocess, os, shutil, json, zipfile
+import subprocess, os, shutil, json, zipfile, re
 from pathlib import Path
 import build_n64recomp_tools as bnt
 import build_mod as bm
@@ -6,7 +6,25 @@ import build_mod as bm
 package_dir = bm.project_root.joinpath("thunderstore_package")
 
 deps = bnt.deps = bnt.deps
-def get_git_url() -> str:
+
+def slugify(text: str) -> str:
+    text = text.strip()
+    text = re.sub(r'[\s_]+', '_', text)
+    text = re.sub(r'[^a-zA-Z0-9_]', '', text)
+    return text
+
+
+def get_description() -> str:
+    description = re.sub(r'[\n]+', ' ', bm.mod_data["manifest"]["description"]).strip()
+    if len(description) > 0 and len(description) <= 256:
+        return description
+    return bm.mod_data["manifest"]["short_description"]
+
+
+def get_website_url() -> str:
+    if "website_url" in bm.mod_data["manifest"]:
+        return bm.mod_data["manifest"]["website_url"]
+
     result = subprocess.run(
         [
             deps["git"],
@@ -26,12 +44,13 @@ def get_git_url() -> str:
         # print(f"Command failed with error: {result.stderr}")
         return None
 
-def get_default_package_manifest() ->dict[str, str]:
+
+def get_package_manifest() ->dict[str, str]:
     return {
-        "name":  bm.mod_data["manifest"]["id"],
+        "name":  slugify(bm.mod_data["manifest"]["display_name"]),
         "version_number":  bm.mod_data["manifest"]["version"],
-        "website_url":  get_git_url(),
-        "description":  bm.mod_data["manifest"]["short_description"],
+        "website_url":  get_website_url(),
+        "description":  get_description(),
         "dependencies":  []
     }
 
@@ -43,16 +62,17 @@ def create_package_directory():
 
 def create_manifest(path: Path):
     print(f"Creating manifest at '{path}'...")
-    path.write_text(json.dumps(get_default_package_manifest(), indent=4))
-   
- 
+    path.write_text(json.dumps(get_package_manifest(), indent=4))
+
+
 def update_manifest(path: Path):
     print(f"Updating manifest at '{path}'...")
+    manifest = get_package_manifest();
+    del manifest["name"]
+
     current_manifest: dict[str, str] = json.loads(path.read_text());
-    current_manifest.update({
-        "version_number":  bm.mod_data["manifest"]["version"],
-        "description":  bm.mod_data["manifest"]["short_description"],
-    })
+    current_manifest.update(manifest)
+
     path.write_text(json.dumps(current_manifest, indent=4))
 
 
@@ -85,6 +105,8 @@ def create_archive(package_dir: Path, dst_path: Path):
     new_zip = zipfile.ZipFile(dst_path, 'w')
     
     for i in os.listdir(package_dir):
+        if i == "images":
+            continue
         src_path = package_dir.joinpath(i)
         new_zip.write(src_path, i)
         
