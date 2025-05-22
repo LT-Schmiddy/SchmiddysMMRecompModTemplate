@@ -59,15 +59,16 @@ class ModInfo:
         shutil.rmtree(self.build_dir)
         shutil.rmtree(self.project_root.joinpath("./N64Recomp/build"))
 
-def run_build():
+def run_build(args: list[str]):
     make_run = subprocess.run(
         [
             shutil.which("make"),
-        ],
+        ] + args,
         cwd=pathlib.Path(__file__).parent
+        
     )
     if make_run.returncode != 0:
         raise RuntimeError("Make failed!")
 
 if __name__ == '__main__':
-    run_build()
+    run_build(sys.argv[1:])

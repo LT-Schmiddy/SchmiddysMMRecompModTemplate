@@ -19,25 +19,7 @@ endif
 
 # Extlib Building Info:
 # (has to be here so python can use it.)
-CMAKE_LIB_BUILD_TYPE ?= Debug
-ZIG_WINDOWS_TRIPLET ?= zig-windows-x64
-ZIG_MACOS_TRIPLET ?= zig-macos-aarch64
-ZIG_LINUX_TRIPLET ?= zig-linux-x64
 
-define extlib_build_file
-$(BUILD_DIR)/$(1)-$(2)/$(3)/$(LIB_PREFIX)$(LIB_NAME).$(4)
-endef
-
-define native_extlib_build_file
-$(BUILD_DIR)/$(1)-$(2)/$(3)/$(LIB_NAME).$(4)
-endef
-
-LIB_BUILD_WIN := $(call extlib_build_file,$(ZIG_WINDOWS_TRIPLET),$(CMAKE_LIB_BUILD_TYPE),bin,dll)
-LIB_BUILD_MACOS := $(call extlib_build_file,$(ZIG_MACOS_TRIPLET),$(CMAKE_LIB_BUILD_TYPE),lib,dylib)
-LIB_BUILD_LINUX := $(call extlib_build_file,$(ZIG_LINUX_TRIPLET),$(CMAKE_LIB_BUILD_TYPE),lib,so)
-LIB_BUILD_NATIVE := $(call native_extlib_build_file,$(NATIVE_TRIPLET),$(CMAKE_LIB_BUILD_TYPE),$(NATIVE_SUBDIR),$(NATIVE_EXTENSION))
-
-# Python Info:
 ifeq ($(OS),Windows_NT)
 PYTHON_EXEC ?= python
 else
@@ -105,9 +87,6 @@ offline: nrm
 
 elf: $(MOD_ELF) 
 
-$(MOD_ELF): $(C_OBJS) $(LDSCRIPT) | $(BUILD_DIR) $(ASSETS_INCLUDE_DIR)
-	$(LD) $(C_OBJS) $(LDFLAGS) -o $@
-
 $(BUILD_DIR) $(BUILD_DIR)/src $(N64RECOMP_BUILD_DIR):
 ifeq ($(OS),Windows_NT)
 	mkdir $(subst /,\,$@)
@@ -115,7 +94,10 @@ else
 	mkdir -p $@
 endif
 
-$(C_OBJS): $(BUILD_DIR)/%.o : %.c | $(BUILD_DIR) $(ASSETS_INCLUDE_DIR)
+$(MOD_ELF): $(C_OBJS) $(LDSCRIPT) | $(BUILD_DIR) $(BUILD_DIR)/src $(ASSETS_INCLUDE_DIR)
+	$(LD) $(C_OBJS) $(LDFLAGS) -o $@
+
+$(C_OBJS): $(BUILD_DIR)/%.o : %.c | $(BUILD_DIR) $(BUILD_DIR)/src $(ASSETS_INCLUDE_DIR)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -MMD -MF $(@:.o=.d) -c -o $@
 
 $(ASSETS_INCLUDE_DIR):
