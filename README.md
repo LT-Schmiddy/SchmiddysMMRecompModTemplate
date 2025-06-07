@@ -5,7 +5,7 @@ This my custom version of the Majora's Mask: Recompiled mod template. It offers 
 * Optional building of external libraries (referred to as extlibs) alongside the mod nrm, and keeping the code for both in the same repository.
 * Cross-compilation of extlibs using Zig (extlib code is still written in C/C++).
 * Dedicated testing environment for mods in the form of the `runtime` directory.
-* Automatic creation of Thunderstore packages via a script.
+* Automatic creation of Thunderstore packages via a script, or by running `make thunderstore`.
 * Easy integration of non-standard clang versions (such the MIPS-only `clang` package I maintain), in case your system `clang` doesn't support MIPS.
 
 ## Writing mods
@@ -49,6 +49,7 @@ This repo is set up for building an extlib by default. If your mod isn't meant t
 
 On your first run, a file called `user_build_config.json` will be created at the root of the repo. Here you can set the command/path for the compiler and linker
 you want to use for your mod code. If you want to use my MIPS-only clang builds (or any compiler not on the system path), this is an easy way to set them up.
+You can also set which CMake presets you want to use for building your external library.
 
 ## Testing
 
