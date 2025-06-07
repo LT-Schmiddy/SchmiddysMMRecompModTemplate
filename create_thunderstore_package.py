@@ -76,6 +76,7 @@ def update_manifest(path: Path):
     print(f"Updating manifest at '{path}'...")
     manifest = get_package_manifest();
     del manifest["name"]
+    del manifest["dependencies"]
 
     current_manifest: dict[str, str] = json.loads(path.read_text());
     current_manifest.update(manifest)
