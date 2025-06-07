@@ -135,7 +135,7 @@ def create_archive(package_dir: Path, dst_path: Path):
     new_zip.close()
 
 def create_package():
-    bm.run_build(["CMAKE_EXTLIB_BUILD_TYPE=Release"])
+    bm.run_build(["EXTLIB_CMAKE_PRESET_GROUP=Release"])
     
     fully_collected = True
     

@@ -185,6 +185,18 @@ class ModInfo:
             self.copy_if_exists(self.build_pdb_file, self.runtime_pdb_file)
             self.copy_if_exists(self.build_dylib_file, self.runtime_dylib_file)
             self.copy_if_exists(self.build_so_file, self.runtime_so_file)
+
+    def copy_to_runtime_dir_native(self):
+        # Copying files for debugging:
+        os.makedirs(self.runtime_mods_dir, exist_ok=True)
+        portable_txt = self.runtime_dir.joinpath("portable.txt")
+        if not portable_txt.exists():
+            portable_txt.write_text("")
+            print(f"Created '{portable_txt}'.")
+        
+        self.copy_if_exists(self.build_nrm_file, self.runtime_nrm_file)
+        # If no extlib is being built, we don't need to try to find these.
+        if 'extlib_compilation' in self.mod_data:
             self.copy_if_exists(self.build_native_file, self.runtime_native_file)
             self.copy_if_exists(self.build_native_pdb_file, self.runtime_native_pdb_file)
 

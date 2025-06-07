@@ -50,25 +50,25 @@ $(BUILD_DIR)/$(1)/$(2)/$(EXTLIB_PREFIX)$(EXTLIB_NAME).$(3)
 endef
 
 define native_extlib_build_file
-$(BUILD_DIR)/$(1)-$(2)/$(3)/$(EXTLIB_NAME).$(4)
+$(BUILD_DIR)/$(1)/$(2)/$(EXTLIB_NAME).$(3)
 endef
 
-LIB_BUILD_WIN := $(call extlib_build_file,$(ZIG_WINDOWS_CONFIGURE_PRESET),bin,dll)
-LIB_BUILD_MACOS := $(call extlib_build_file,$(ZIG_MACOS_CONFIGURE_PRESET),lib,dylib)
-LIB_BUILD_LINUX := $(call extlib_build_file,$(ZIG_LINUX_CONFIGURE_PRESET),lib,so)
-LIB_BUILD_NATIVE := $(call native_extlib_build_file,$(NATIVE_CMAKE_CONFIGURE_PRESET),$(NATIVE_SUBDIR),$(NATIVE_EXTENSION))
+EXTLIB_BUILD_WIN := $(call extlib_build_file,$(ZIG_WINDOWS_CONFIGURE_PRESET),bin,dll)
+EXTLIB_BUILD_MACOS := $(call extlib_build_file,$(ZIG_MACOS_CONFIGURE_PRESET),lib,dylib)
+EXTLIB_BUILD_LINUX := $(call extlib_build_file,$(ZIG_LINUX_CONFIGURE_PRESET),lib,so)
+EXTLIB_BUILD_NATIVE := $(call native_extlib_build_file,$(NATIVE_CMAKE_CONFIGURE_PRESET),$(NATIVE_SUBDIR),$(NATIVE_EXTENSION))
 
 # Python Build Info:
 define call_python_func
-	$(PYTHON_EXEC) -c "import $(PYTHON_FUNC_MODULE); $(PYTHON_FUNC_MODULE).ModInfo(\"$(MOD_TOML)\", \"$(BUILD_DIR)\").set_extlib_info(\"$(LIB_BUILD_WIN)\", \"$(LIB_BUILD_MACOS)\", \"$(LIB_BUILD_LINUX)\", \"$(LIB_BUILD_NATIVE)\").$(1)($(2))"
+	$(PYTHON_EXEC) -c "import $(PYTHON_FUNC_MODULE); $(PYTHON_FUNC_MODULE).ModInfo(\"$(MOD_TOML)\", \"$(BUILD_DIR)\").set_extlib_info(\"$(EXTLIB_BUILD_WIN)\", \"$(EXTLIB_BUILD_MACOS)\", \"$(EXTLIB_BUILD_LINUX)\", \"$(EXTLIB_BUILD_NATIVE)\").$(1)($(2))"
 endef
 
 define get_python_func
-$(shell $(PYTHON_EXEC) -c "import $(PYTHON_FUNC_MODULE); $(PYTHON_FUNC_MODULE).ModInfo(\"$(MOD_TOML)\", \"$(BUILD_DIR)\").set_extlib_info(\"$(LIB_BUILD_WIN)\", \"$(LIB_BUILD_MACOS)\", \"$(LIB_BUILD_LINUX)\", \"$(LIB_BUILD_NATIVE)\").$(1)($(2))")
+$(shell $(PYTHON_EXEC) -c "import $(PYTHON_FUNC_MODULE); $(PYTHON_FUNC_MODULE).ModInfo(\"$(MOD_TOML)\", \"$(BUILD_DIR)\").set_extlib_info(\"$(EXTLIB_BUILD_WIN)\", \"$(EXTLIB_BUILD_MACOS)\", \"$(EXTLIB_BUILD_LINUX)\", \"$(EXTLIB_BUILD_NATIVE)\").$(1)($(2))")
 endef
 
 define get_python_val
-$(shell $(PYTHON_EXEC) -c "import $(PYTHON_FUNC_MODULE); print($(PYTHON_FUNC_MODULE).ModInfo(\"$(MOD_TOML)\", \"$(BUILD_DIR)\").set_extlib_info(\"$(LIB_BUILD_WIN)\", \"$(LIB_BUILD_MACOS)\", \"$(LIB_BUILD_LINUX)\", \"$(LIB_BUILD_NATIVE)\").$(1))")
+$(shell $(PYTHON_EXEC) -c "import $(PYTHON_FUNC_MODULE); print($(PYTHON_FUNC_MODULE).ModInfo(\"$(MOD_TOML)\", \"$(BUILD_DIR)\").set_extlib_info(\"$(EXTLIB_BUILD_WIN)\", \"$(EXTLIB_BUILD_MACOS)\", \"$(EXTLIB_BUILD_LINUX)\", \"$(EXTLIB_BUILD_NATIVE)\").$(1))")
 endef
 
 # Get the mod code compilers from a config.
@@ -115,7 +115,7 @@ else
 all: nrm extlib-all runtime
 endif
 
-native: nrm extlib-native runtime
+native: nrm extlib-native runtime_native
 
 windows: nrm extlib-win runtime
 
@@ -125,6 +125,9 @@ linux: nrm extlib-linux runtime
 
 runtime:
 	$(call call_python_func,copy_to_runtime_dir,)
+
+runtime_native:
+	$(call call_python_func,copy_to_runtime_dir_native,)
 
 # Mod Recipes:
 nrm: $(MOD_FILE)
