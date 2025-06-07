@@ -73,16 +73,40 @@ class ModInfo:
             "extlib_compiling": {
                 "preset_groups": {
                     "Debug": {
-                        "windows": "zig-windows-x64-Debug",
-                        "macos": "zig-macos-aarch64-Debug",
-                        "linux": "zig-linux-x64-Debug",
-                        "native": self.get_native_preset("Debug")
+                        "windows": {
+                            "configure": "zig-windows-x64-Debug",
+                            "build": "zig-windows-x64-Debug"
+                        },
+                        "macos": {
+                            "configure": "zig-macos-aarch64-Debug",
+                            "build": "zig-macos-aarch64-Debug"
+                        },
+                        "linux": {
+                            "configure": "zig-linux-x64-Debug",
+                            "build": "zig-linux-x64-Debug"
+                        },
+                        "native": {
+                            "configure": self.get_native_preset("Debug"),
+                            "build": self.get_native_preset("Debug")
+                        }
                     },
                     "Release": {
-                        "windows": "zig-windows-x64-Release",
-                        "macos": "zig-macos-aarch64-Release",
-                        "linux": "zig-linux-x64-Release",
-                        "native": self.get_native_preset("Release")
+                        "windows": {
+                            "configure": "zig-windows-x64-Release",
+                            "build": "zig-windows-x64-Release"
+                        },
+                        "macos": {
+                            "configure": "zig-macos-aarch64-Release",
+                            "build": "zig-macos-aarch64-Release"
+                        },
+                        "linux": {
+                            "configure": "zig-linux-x64-Release",
+                            "build": "zig-linux-x64-Release"
+                        },
+                        "native": {
+                            "configure": self.get_native_preset("Release"),
+                            "build": self.get_native_preset("Release")
+                        }
                     }
                 }
             }
@@ -116,17 +140,29 @@ class ModInfo:
         else:
             return self.print_and_return(None)
 
-    def get_extlib_windows_triplet(self, build_type: str):
-        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["windows"])
+    def get_extlib_windows_configure_preset(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["windows"]["configure"])
 
-    def get_extlib_macos_triplet(self, build_type: str):
-        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["macos"])
+    def get_extlib_macos_configure_preset(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["macos"]["configure"])
 
-    def get_extlib_linux_triplet(self, build_type: str):
-        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["linux"])
+    def get_extlib_linux_configure_preset(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["linux"]["configure"])
 
-    def get_extlib_native_triplet(self, build_type: str):
-        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["native"])
+    def get_extlib_native_configure_preset(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["native"]["configure"])
+
+    def get_extlib_windows_build_preset(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["windows"]["build"])
+
+    def get_extlib_macos_build_preset(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["macos"]["build"])
+
+    def get_extlib_linux_build_preset(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["linux"]["build"])
+
+    def get_extlib_native_build_preset(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["native"]["build"])
 
     def create_asset_archive(self, assets_extract_path_str: str):
             assets_extract_path = self.project_root.joinpath(assets_extract_path_str)

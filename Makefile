@@ -11,19 +11,23 @@ PYTHON_EXEC ?= python3
 endif
 PYTHON_FUNC_MODULE := make_python_functions
 
-define get_python_func_no_extlib
+define get_python_func_no_build_info
 $(shell $(PYTHON_EXEC) -c "import $(PYTHON_FUNC_MODULE); $(PYTHON_FUNC_MODULE).ModInfo(\"$(MOD_TOML)\", \"$(BUILD_DIR)\").$(1)($(2))")
 endef
 
-EXTLIB_NAME := $(call get_python_func_no_extlib,get_extlib_name,)
+EXTLIB_NAME := $(call get_python_func_no_build_info,get_extlib_name,)
 
 # Extlib Building Info:
-# (has to be here so python can use it.)
 EXTLIB_CMAKE_PRESET_GROUP := Debug
-ZIG_WINDOWS_PRESET := $(call get_python_func_no_extlib,get_extlib_windows_triplet,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
-ZIG_MACOS_PRESET := $(call get_python_func_no_extlib,get_extlib_macos_triplet,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
-ZIG_LINUX_PRESET := $(call get_python_func_no_extlib,get_extlib_linux_triplet,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
-NATIVE_CMAKE_PRESET ?= $(call get_python_func_no_extlib,get_extlib_native_triplet,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
+ZIG_WINDOWS_CONFIGURE_PRESET := $(call get_python_func_no_build_info,get_extlib_windows_configure_preset,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
+ZIG_MACOS_CONFIGURE_PRESET := $(call get_python_func_no_build_info,get_extlib_macos_configure_preset,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
+ZIG_LINUX_CONFIGURE_PRESET := $(call get_python_func_no_build_info,get_extlib_linux_configure_preset,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
+NATIVE_CMAKE_CONFIGURE_PRESET ?= $(call get_python_func_no_build_info,get_extlib_native_configure_preset,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
+
+ZIG_WINDOWS_BUILD_PRESET := $(call get_python_func_no_build_info,get_extlib_windows_build_preset,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
+ZIG_MACOS_BUILD_PRESET := $(call get_python_func_no_build_info,get_extlib_macos_build_preset,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
+ZIG_LINUX_BUILD_PRESET := $(call get_python_func_no_build_info,get_extlib_linux_build_preset,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
+NATIVE_CMAKE_BUILD_PRESET ?= $(call get_python_func_no_build_info,get_extlib_native_build_preset,\"$(EXTLIB_CMAKE_PRESET_GROUP)\",)
 
 ifeq ($(OS),Windows_NT)
 MOD_TOOL_ZIG_TRIPLET ?= x86_64-windows
@@ -49,10 +53,10 @@ define native_extlib_build_file
 $(BUILD_DIR)/$(1)-$(2)/$(3)/$(EXTLIB_NAME).$(4)
 endef
 
-LIB_BUILD_WIN := $(call extlib_build_file,$(ZIG_WINDOWS_PRESET),bin,dll)
-LIB_BUILD_MACOS := $(call extlib_build_file,$(ZIG_MACOS_PRESET),lib,dylib)
-LIB_BUILD_LINUX := $(call extlib_build_file,$(ZIG_LINUX_PRESET),lib,so)
-LIB_BUILD_NATIVE := $(call native_extlib_build_file,$(NATIVE_CMAKE_PRESET),$(NATIVE_SUBDIR),$(NATIVE_EXTENSION))
+LIB_BUILD_WIN := $(call extlib_build_file,$(ZIG_WINDOWS_CONFIGURE_PRESET),bin,dll)
+LIB_BUILD_MACOS := $(call extlib_build_file,$(ZIG_MACOS_CONFIGURE_PRESET),lib,dylib)
+LIB_BUILD_LINUX := $(call extlib_build_file,$(ZIG_LINUX_CONFIGURE_PRESET),lib,so)
+LIB_BUILD_NATIVE := $(call native_extlib_build_file,$(NATIVE_CMAKE_CONFIGURE_PRESET),$(NATIVE_SUBDIR),$(NATIVE_EXTENSION))
 
 # Python Build Info:
 define call_python_func
@@ -159,20 +163,20 @@ $(RECOMP_MOD_TOOL): $(N64RECOMP_BUILD_DIR)
 extlib-all: extlib-win extlib-macos extlib-linux
 
 extlib-win:
-	cmake --preset=$(ZIG_WINDOWS_PRESET) -DLIB_NAME=$(EXTLIB_NAME) .
-	cmake --build --preset=$(ZIG_WINDOWS_PRESET)
+	cmake --preset=$(ZIG_WINDOWS_CONFIGURE_PRESET) -DLIB_NAME=$(EXTLIB_NAME) .
+	cmake --build --preset=$(ZIG_WINDOWS_BUILD_PRESET)
 
 extlib-macos:
-	cmake --preset=$(ZIG_MACOS_PRESET) -DLIB_NAME=$(EXTLIB_NAME) .
-	cmake --build --preset=$(ZIG_MACOS_PRESET)
+	cmake --preset=$(ZIG_MACOS_CONFIGURE_PRESET) -DLIB_NAME=$(EXTLIB_NAME) .
+	cmake --build --preset=$(ZIG_MACOS_BUILD_PRESET)
 
 extlib-linux:
-	cmake --preset=$(ZIG_LINUX_PRESET) -DLIB_NAME=$(EXTLIB_NAME) .
-	cmake --build --preset=$(ZIG_LINUX_PRESET)
+	cmake --preset=$(ZIG_LINUX_CONFIGURE_PRESET) -DLIB_NAME=$(EXTLIB_NAME) .
+	cmake --build --preset=$(ZIG_LINUX_BUILD_PRESET)
 
 extlib-native:
-	cmake --preset=$(NATIVE_CMAKE_PRESET) -DLIB_NAME=$(EXTLIB_NAME) .
-	cmake --build --preset=$(NATIVE_CMAKE_PRESET)
+	cmake --preset=$(NATIVE_CMAKE_CONFIGURE_PRESET) -DLIB_NAME=$(EXTLIB_NAME) .
+	cmake --build --preset=$(NATIVE_CMAKE_BUILD_PRESET)
 
 # Misc Recipes:
 clean:
