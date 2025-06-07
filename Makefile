@@ -19,7 +19,7 @@ EXTLIB_NAME := $(call get_python_func_no_extlib,get_extlib_name,)
 
 # Extlib Building Info:
 # (has to be here so python can use it.)
-CMAKE_LIB_BUILD_TYPE ?= Debug
+CMAKE_EXTLIB_BUILD_TYPE ?= Debug
 ZIG_WINDOWS_PRESET ?= zig-windows-x64
 ZIG_MACOS_PRESET ?= zig-macos-aarch64
 ZIG_LINUX_PRESET ?= zig-linux-x64
@@ -55,10 +55,10 @@ define native_extlib_build_file
 $(BUILD_DIR)/$(1)-$(2)/$(3)/$(EXTLIB_NAME).$(4)
 endef
 
-LIB_BUILD_WIN := $(call extlib_build_file,$(ZIG_WINDOWS_PRESET),$(CMAKE_LIB_BUILD_TYPE),bin,dll)
-LIB_BUILD_MACOS := $(call extlib_build_file,$(ZIG_MACOS_PRESET),$(CMAKE_LIB_BUILD_TYPE),lib,dylib)
-LIB_BUILD_LINUX := $(call extlib_build_file,$(ZIG_LINUX_PRESET),$(CMAKE_LIB_BUILD_TYPE),lib,so)
-LIB_BUILD_NATIVE := $(call native_extlib_build_file,$(NATIVE_CMAKE_PRESET),$(CMAKE_LIB_BUILD_TYPE),$(NATIVE_SUBDIR),$(NATIVE_EXTENSION))
+LIB_BUILD_WIN := $(call extlib_build_file,$(ZIG_WINDOWS_PRESET),$(CMAKE_EXTLIB_BUILD_TYPE),bin,dll)
+LIB_BUILD_MACOS := $(call extlib_build_file,$(ZIG_MACOS_PRESET),$(CMAKE_EXTLIB_BUILD_TYPE),lib,dylib)
+LIB_BUILD_LINUX := $(call extlib_build_file,$(ZIG_LINUX_PRESET),$(CMAKE_EXTLIB_BUILD_TYPE),lib,so)
+LIB_BUILD_NATIVE := $(call native_extlib_build_file,$(NATIVE_CMAKE_PRESET),$(CMAKE_EXTLIB_BUILD_TYPE),$(NATIVE_SUBDIR),$(NATIVE_EXTENSION))
 
 # Python Build Info:
 define call_python_func
@@ -111,6 +111,7 @@ C_OBJS := $(addprefix $(BUILD_DIR)/, $(C_SRCS:.c=.o))
 C_DEPS := $(addprefix $(BUILD_DIR)/, $(C_SRCS:.c=.d))
 
 # General Recipes:
+# If no extlib is to be built, then don't include it in recipe 'all'
 ifeq ($(EXTLIB_NAME),None)
 all: nrm runtime
 else
@@ -132,7 +133,7 @@ runtime:
 nrm: $(MOD_FILE)
 
 $(MOD_FILE): $(RECOMP_MOD_TOOL) $(MOD_ELF) 
-	$(RECOMP_MOD_TOOL) mod.toml $(BUILD_DIR)
+	$(RECOMP_MOD_TOOL) $(MOD_TOML) $(BUILD_DIR)
 
 offline: nrm
 	$(OFFLINE_MOD_TOOL) $(MOD_SYMS) $(MOD_BINARY) $(ZELDA_SYMS) $(OFFLINE_C_OUTPUT)
@@ -164,24 +165,21 @@ $(RECOMP_MOD_TOOL): $(N64RECOMP_BUILD_DIR)
 # Extlib Recipes:
 extlib-all: extlib-win extlib-macos extlib-linux
 
-# extlib-win: $(LIB_BUILD_WIN)
 extlib-win:
-	cmake --preset=$(ZIG_WINDOWS_PRESET)-$(CMAKE_LIB_BUILD_TYPE) -DLIB_NAME=$(EXTLIB_NAME) .
-	cmake --build --preset=$(ZIG_WINDOWS_PRESET)-$(CMAKE_LIB_BUILD_TYPE)
+	cmake --preset=$(ZIG_WINDOWS_PRESET)-$(CMAKE_EXTLIB_BUILD_TYPE) -DLIB_NAME=$(EXTLIB_NAME) .
+	cmake --build --preset=$(ZIG_WINDOWS_PRESET)-$(CMAKE_EXTLIB_BUILD_TYPE)
 
-# extlib-macos: $(LIB_BUILD_MACOS)
 extlib-macos:
-	cmake --preset=$(ZIG_MACOS_PRESET)-$(CMAKE_LIB_BUILD_TYPE) -DLIB_NAME=$(EXTLIB_NAME) .
-	cmake --build --preset=$(ZIG_MACOS_PRESET)-$(CMAKE_LIB_BUILD_TYPE)
+	cmake --preset=$(ZIG_MACOS_PRESET)-$(CMAKE_EXTLIB_BUILD_TYPE) -DLIB_NAME=$(EXTLIB_NAME) .
+	cmake --build --preset=$(ZIG_MACOS_PRESET)-$(CMAKE_EXTLIB_BUILD_TYPE)
 
-# extlib-linux: $(LIB_BUILD_LINUX)
 extlib-linux:
-	cmake --preset=$(ZIG_LINUX_PRESET)-$(CMAKE_LIB_BUILD_TYPE) -DLIB_NAME=$(EXTLIB_NAME) .
-	cmake --build --preset=$(ZIG_LINUX_PRESET)-$(CMAKE_LIB_BUILD_TYPE)
+	cmake --preset=$(ZIG_LINUX_PRESET)-$(CMAKE_EXTLIB_BUILD_TYPE) -DLIB_NAME=$(EXTLIB_NAME) .
+	cmake --build --preset=$(ZIG_LINUX_PRESET)-$(CMAKE_EXTLIB_BUILD_TYPE)
 
 extlib-native:
-	cmake --preset=$(NATIVE_CMAKE_PRESET)-$(CMAKE_LIB_BUILD_TYPE) -DLIB_NAME=$(EXTLIB_NAME) .
-	cmake --build --preset=$(NATIVE_CMAKE_PRESET)-$(CMAKE_LIB_BUILD_TYPE)
+	cmake --preset=$(NATIVE_CMAKE_PRESET)-$(CMAKE_EXTLIB_BUILD_TYPE) -DLIB_NAME=$(EXTLIB_NAME) .
+	cmake --build --preset=$(NATIVE_CMAKE_PRESET)-$(CMAKE_EXTLIB_BUILD_TYPE)
 
 # Misc Recipes:
 clean:

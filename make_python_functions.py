@@ -30,7 +30,23 @@ class ModInfo:
         
         else:
             self.recomp_compiler_info = json.loads(self.recomp_user_compilers_path.read_text())
-    
+
+        self.build_dll_file: Path = None
+        self.build_pdb_file: Path = None
+        self.build_dylib_file: Path = None
+        self.build_so_file: Path = None
+        self.build_native_file: Path = None
+        self.build_native_pdb_file: Path = None
+        
+        self.runtime_dll_file: Path = None
+        self.runtime_pdb_file: Path = None
+        self.runtime_dylib_file: Path = None
+        self.runtime_so_file: Path = None
+        self.runtime_native_file: Path = None
+        self.runtime_native_pdb_file: Path = None
+        
+        
+        
     def set_extlib_info(self, windows_lib: str, macos_lib: str, linux_lib: str, native_lib: str):
         self.build_dll_file = self.project_root.joinpath(windows_lib)
         self.build_pdb_file = self.build_dll_file.with_suffix(".pdb")
@@ -60,22 +76,28 @@ class ModInfo:
     def get_mod_file(self):
         name = f"{self.mod_data['inputs']['mod_filename']}.nrm"
         print(self.build_dir.joinpath(name))
+        return self.build_dir.joinpath(name)
     
     def get_mod_elf(self):
         print(self.mod_toml_file.parent.joinpath(self.mod_data['inputs']['elf_path']))
+        return self.mod_toml_file.parent.joinpath(self.mod_data['inputs']['elf_path'])
         
     def get_mod_compiler(self):
         print(self.recomp_compiler_info["mod_compiling"]["compiler"])
+        return self.recomp_compiler_info["mod_compiling"]["compiler"]
         
     def get_mod_linker(self):
         print(self.recomp_compiler_info["mod_compiling"]["linker"])
+        return self.recomp_compiler_info["mod_compiling"]["linker"]
         
     def get_extlib_name(self):
         
         if 'extlib_compilation' in self.mod_data:
             print(self.mod_data['extlib_compilation']['library_name'])
+            return self.mod_data['extlib_compilation']['library_name']
         else:
             print(None)
+            return None
 
 
     def create_asset_archive(self, assets_extract_path_str: str):
