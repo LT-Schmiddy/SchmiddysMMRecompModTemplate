@@ -7,7 +7,7 @@ class ModInfo:
     mod_toml_file: Path
     mod_data: dict
     
-    def __init__(self, mod_toml_str: str, build_dir: str, windows_lib: str, macos_lib: str, linux_lib: str, native_lib: str):
+    def __init__(self, mod_toml_str: str, build_dir: str):
         self.project_root = Path(__file__).parent
         self.mod_toml_file = self.project_root.joinpath(mod_toml_str)
         
@@ -20,6 +20,18 @@ class ModInfo:
         self.runtime_mods_dir = self.runtime_dir.joinpath("mods")
         self.runtime_nrm_file = self.runtime_mods_dir.joinpath(f"{self.mod_data['inputs']['mod_filename']}.nrm")
         
+        self.assets_archive_path =self.project_root.joinpath("assets_archive.zip")
+        
+        # Handle recomp compilers:
+        self.recomp_user_compilers_path = self.project_root.joinpath("./user_build_config.json")
+        self.recomp_compiler_info = {}
+        if not self.recomp_user_compilers_path.exists():
+            self.create_user_mod_compilers_json()
+        
+        else:
+            self.recomp_compiler_info = json.loads(self.recomp_user_compilers_path.read_text())
+    
+    def set_extlib_info(self, windows_lib: str, macos_lib: str, linux_lib: str, native_lib: str):
         self.build_dll_file = self.project_root.joinpath(windows_lib)
         self.build_pdb_file = self.build_dll_file.with_suffix(".pdb")
         self.build_dylib_file = self.project_root.joinpath(macos_lib)
@@ -34,17 +46,8 @@ class ModInfo:
         self.runtime_native_file = self.runtime_mods_dir.joinpath(self.build_native_file.name.removeprefix("lib"))
         self.runtime_native_pdb_file = self.runtime_mods_dir.joinpath(self.build_native_pdb_file.name.removeprefix("lib"))
         
-        self.assets_archive_path =self.project_root.joinpath("assets_archive.zip")
-        
-        # Handle recomp compilers:
-        self.recomp_user_compilers_path = self.project_root.joinpath("./user_build_config.json")
-        self.recomp_compiler_info = {}
-        if not self.recomp_user_compilers_path.exists():
-            self.create_user_mod_compilers_json()
-        
-        else:
-            self.recomp_compiler_info = json.loads(self.recomp_user_compilers_path.read_text())
-            
+        return self
+    
     def create_user_mod_compilers_json(self):
         self.recomp_compiler_info = {
             "mod_compiling": {
@@ -66,6 +69,14 @@ class ModInfo:
         
     def get_mod_linker(self):
         print(self.recomp_compiler_info["mod_compiling"]["linker"])
+        
+    def get_extlib_name(self):
+        
+        if 'extlib_compilation' in self.mod_data:
+            print(self.mod_data['extlib_compilation']['library_name'])
+        else:
+            print(None)
+
 
     def create_asset_archive(self, assets_extract_path_str: str):
             assets_extract_path = self.project_root.joinpath(assets_extract_path_str)
@@ -74,7 +85,6 @@ class ModInfo:
                 zip_ref.extractall(assets_extract_path)
 
     def copy_to_runtime_dir(self):
-
         # Copying files for debugging:
         os.makedirs(self.runtime_mods_dir, exist_ok=True)
         portable_txt = self.runtime_dir.joinpath("portable.txt")
@@ -83,12 +93,14 @@ class ModInfo:
             print(f"Created '{portable_txt}'.")
         
         self.copy_if_exists(self.build_nrm_file, self.runtime_nrm_file)
-        self.copy_if_exists(self.build_dll_file, self.runtime_dll_file)
-        self.copy_if_exists(self.build_pdb_file, self.runtime_pdb_file)
-        self.copy_if_exists(self.build_dylib_file, self.runtime_dylib_file)
-        self.copy_if_exists(self.build_so_file, self.runtime_so_file)
-        self.copy_if_exists(self.build_native_file, self.runtime_native_file)
-        self.copy_if_exists(self.build_native_pdb_file, self.runtime_native_pdb_file)
+        # If no extlib is being built, we don't need to try to find these.
+        if 'extlib_compilation' in self.mod_data:
+            self.copy_if_exists(self.build_dll_file, self.runtime_dll_file)
+            self.copy_if_exists(self.build_pdb_file, self.runtime_pdb_file)
+            self.copy_if_exists(self.build_dylib_file, self.runtime_dylib_file)
+            self.copy_if_exists(self.build_so_file, self.runtime_so_file)
+            self.copy_if_exists(self.build_native_file, self.runtime_native_file)
+            self.copy_if_exists(self.build_native_pdb_file, self.runtime_native_pdb_file)
 
     def copy_if_exists(self, src: Path, dest: Path):
         if src.exists():

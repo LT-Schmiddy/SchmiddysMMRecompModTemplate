@@ -42,7 +42,7 @@ dependencies = [
 # Native libraries (e.g. DLLs) and the functions they export.
 native_libraries = [
 # Example native library:
-#    { name = "my_native_library", funcs = ["my_native_library_function"] }
+   { name = "mm_recomp_mod_template_extlib", funcs = ["native_lib_test"] }
 ]
 
 # Inputs to the mod tool.
@@ -61,6 +61,13 @@ data_reference_syms_files = [ "Zelda64RecompSyms/mm.us.rev1.datasyms.toml", "Zel
 # Additional files to include in the mod.
 additional_files = [ ]
 
+# Info for building the extlib. If this mod will have no extlib, remove this section.
+[extlib_compilation]
+
+# Name of the extlib. This information is passed to CMake as the target name for the extlib.
+library_name = "mm_recomp_mod_template_extlib"
+
+# Moc config options
 [[manifest.config_options]]
 id = "enum_option"
 name = "Enum Option"

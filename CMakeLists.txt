@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(recomp_achievements_lib)
+project(recomp_mod_native_lib)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(TARGET_NAME AchievementNative)
+set(TARGET_NAME ${LIB_NAME})
 
 include_directories("./offline_build")
 include_directories("./include/extlib")
