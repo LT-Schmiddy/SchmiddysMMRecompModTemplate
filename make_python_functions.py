@@ -1,4 +1,4 @@
-import pathlib, subprocess, os, shutil, tomllib, zipfile, sys, json
+import pathlib, subprocess, os, shutil, tomllib, zipfile, sys, json, platform
 from pathlib import Path
 
 
@@ -23,13 +23,13 @@ class ModInfo:
         self.assets_archive_path =self.project_root.joinpath("assets_archive.zip")
         
         # Handle recomp compilers:
-        self.recomp_user_compilers_path = self.project_root.joinpath("./user_build_config.json")
-        self.recomp_compiler_info = {}
-        if not self.recomp_user_compilers_path.exists():
+        self.user_config_path = self.project_root.joinpath("./user_build_config.json")
+        self.user_config = {}
+        if not self.user_config_path.exists():
             self.create_user_mod_compilers_json()
         
         else:
-            self.recomp_compiler_info = json.loads(self.recomp_user_compilers_path.read_text())
+            self.user_config = json.loads(self.user_config_path.read_text())
 
         self.build_dll_file: Path = None
         self.build_pdb_file: Path = None
@@ -65,40 +65,68 @@ class ModInfo:
         return self
     
     def create_user_mod_compilers_json(self):
-        self.recomp_compiler_info = {
+        self.user_config = {
             "mod_compiling": {
                 "compiler": "clang",
                 "linker": "ld.lld"
+            },
+            "extlib_compiling": {
+                "preset_groups": {
+                    "Debug": {
+                        "windows": "zig-windows-x64-Debug",
+                        "macos": "zig-macos-aarch64-Debug",
+                        "linux": "zig-linux-x64-Debug",
+                        "native": self.get_native_preset("Debug")
+                    },
+                    "Release": {
+                        "windows": "zig-windows-x64-Release",
+                        "macos": "zig-macos-aarch64-Release",
+                        "linux": "zig-linux-x64-Release",
+                        "native": self.get_native_preset("Release")
+                    }
+                }
             }
         }
-        self.recomp_user_compilers_path.write_text(json.dumps(self.recomp_compiler_info, indent=4))
+        self.user_config_path.write_text(json.dumps(self.user_config, indent=4))
     
+    def get_native_preset(self, build_type: str):
+        if platform.platform() == "Windows":
+            return f"native-windows-x64-{build_type}"
+        elif platform.platform() == "Darwin":
+            return f"native-macos-aarch64-{build_type}"
+        else:
+            return f"native-linux-x64-{build_type}"
+        
     def get_mod_file(self):
         name = f"{self.mod_data['inputs']['mod_filename']}.nrm"
-        print(self.build_dir.joinpath(name))
-        return self.build_dir.joinpath(name)
+        return self.print_and_return(self.build_dir.joinpath(name))
     
     def get_mod_elf(self):
-        print(self.mod_toml_file.parent.joinpath(self.mod_data['inputs']['elf_path']))
-        return self.mod_toml_file.parent.joinpath(self.mod_data['inputs']['elf_path'])
+        return self.print_and_return(self.mod_toml_file.parent.joinpath(self.mod_data['inputs']['elf_path']))
         
     def get_mod_compiler(self):
-        print(self.recomp_compiler_info["mod_compiling"]["compiler"])
-        return self.recomp_compiler_info["mod_compiling"]["compiler"]
+        return self.print_and_return(self.user_config["mod_compiling"]["compiler"])
         
     def get_mod_linker(self):
-        print(self.recomp_compiler_info["mod_compiling"]["linker"])
-        return self.recomp_compiler_info["mod_compiling"]["linker"]
+        return self.print_and_return(self.user_config["mod_compiling"]["linker"])
         
     def get_extlib_name(self):
-        
         if 'extlib_compilation' in self.mod_data:
-            print(self.mod_data['extlib_compilation']['library_name'])
-            return self.mod_data['extlib_compilation']['library_name']
+            return self.print_and_return(self.mod_data['extlib_compilation']['library_name'])
         else:
-            print(None)
-            return None
+            return self.print_and_return(None)
 
+    def get_extlib_windows_triplet(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["windows"])
+
+    def get_extlib_macos_triplet(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["macos"])
+
+    def get_extlib_linux_triplet(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["linux"])
+
+    def get_extlib_native_triplet(self, build_type: str):
+        return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["native"])
 
     def create_asset_archive(self, assets_extract_path_str: str):
             assets_extract_path = self.project_root.joinpath(assets_extract_path_str)
@@ -135,6 +163,9 @@ class ModInfo:
         shutil.rmtree(self.build_dir)
         shutil.rmtree(self.project_root.joinpath("./N64Recomp/build"))
 
+    def print_and_return(self, x):
+        print(x)
+        return x
 
 def run_build(args: list[str]):
     make_run = subprocess.run(
