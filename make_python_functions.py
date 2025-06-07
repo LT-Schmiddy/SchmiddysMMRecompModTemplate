@@ -7,7 +7,7 @@ class ModInfo:
     mod_toml_file: Path
     mod_data: dict
     
-    def __init__(self, mod_toml_str: str, build_dir: str):
+    def __init__(self, mod_toml_str: str, build_dir: str, windows_lib: str, macos_lib: str, linux_lib: str, native_lib: str):
         self.project_root = Path(__file__).parent
         self.mod_toml_file = self.project_root.joinpath(mod_toml_str)
         
@@ -20,10 +20,24 @@ class ModInfo:
         self.runtime_mods_dir = self.runtime_dir.joinpath("mods")
         self.runtime_nrm_file = self.runtime_mods_dir.joinpath(f"{self.mod_data['inputs']['mod_filename']}.nrm")
         
+        self.build_dll_file = self.project_root.joinpath(windows_lib)
+        self.build_pdb_file = self.build_dll_file.with_suffix(".pdb")
+        self.build_dylib_file = self.project_root.joinpath(macos_lib)
+        self.build_so_file = self.project_root.joinpath(linux_lib)
+        self.build_native_file = self.project_root.joinpath(native_lib)
+        self.build_native_pdb_file = self.build_native_file.with_suffix(".pdb")
+        
+        self.runtime_dll_file = self.runtime_mods_dir.joinpath(self.build_dll_file.name.removeprefix("lib"))
+        self.runtime_pdb_file = self.runtime_mods_dir.joinpath(self.build_pdb_file.name.removeprefix("lib"))
+        self.runtime_dylib_file = self.runtime_mods_dir.joinpath(self.build_dylib_file.name.removeprefix("lib"))
+        self.runtime_so_file = self.runtime_mods_dir.joinpath(self.build_so_file.name.removeprefix("lib"))
+        self.runtime_native_file = self.runtime_mods_dir.joinpath(self.build_native_file.name.removeprefix("lib"))
+        self.runtime_native_pdb_file = self.runtime_mods_dir.joinpath(self.build_native_pdb_file.name.removeprefix("lib"))
+        
         self.assets_archive_path =self.project_root.joinpath("assets_archive.zip")
-
+        
         # Handle recomp compilers:
-        self.recomp_user_compilers_path = self.project_root.joinpath("./recomp_user_compilers.json")
+        self.recomp_user_compilers_path = self.project_root.joinpath("./user_build_config.json")
         self.recomp_compiler_info = {}
         if not self.recomp_user_compilers_path.exists():
             self.create_user_mod_compilers_json()
@@ -69,7 +83,12 @@ class ModInfo:
             print(f"Created '{portable_txt}'.")
         
         self.copy_if_exists(self.build_nrm_file, self.runtime_nrm_file)
-        
+        self.copy_if_exists(self.build_dll_file, self.runtime_dll_file)
+        self.copy_if_exists(self.build_pdb_file, self.runtime_pdb_file)
+        self.copy_if_exists(self.build_dylib_file, self.runtime_dylib_file)
+        self.copy_if_exists(self.build_so_file, self.runtime_so_file)
+        self.copy_if_exists(self.build_native_file, self.runtime_native_file)
+        self.copy_if_exists(self.build_native_pdb_file, self.runtime_native_pdb_file)
 
     def copy_if_exists(self, src: Path, dest: Path):
         if src.exists():
@@ -81,6 +100,7 @@ class ModInfo:
     def run_clean(self):
         shutil.rmtree(self.build_dir)
         shutil.rmtree(self.project_root.joinpath("./N64Recomp/build"))
+
 
 def run_build(args: list[str]):
     make_run = subprocess.run(
