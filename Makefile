@@ -115,6 +115,9 @@ else
 all: nrm extlib-all runtime
 endif
 
+create_user_build_config:
+	$(call call_python_func,create_user_build_config,)
+
 thunderstore:
 	python ./create_thunderstore_package.py
 

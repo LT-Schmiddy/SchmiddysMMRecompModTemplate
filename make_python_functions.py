@@ -26,7 +26,7 @@ class ModInfo:
         self.user_config_path = self.project_root.joinpath("./user_build_config.json")
         self.user_config = {}
         if not self.user_config_path.exists():
-            self.create_user_mod_compilers_json()
+            self.create_user_build_config()
         
         else:
             self.user_config = json.loads(self.user_config_path.read_text())
@@ -64,7 +64,7 @@ class ModInfo:
         
         return self
     
-    def create_user_mod_compilers_json(self):
+    def create_user_build_config(self):
         self.user_config = {
             "mod_compiling": {
                 "compiler": "clang",
