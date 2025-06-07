@@ -1,4 +1,4 @@
-import pathlib, subprocess, os, shutil, tomllib, zipfile, sys
+import pathlib, subprocess, os, shutil, tomllib, zipfile, sys, json
 from pathlib import Path
 
 
@@ -22,13 +22,36 @@ class ModInfo:
         
         self.assets_archive_path =self.project_root.joinpath("assets_archive.zip")
 
+        # Handle recomp compilers:
+        self.recomp_user_compilers_path = self.project_root.joinpath("./recomp_user_compilers.json")
+        self.recomp_compiler_info = {}
+        if not self.recomp_user_compilers_path.exists():
+            self.create_user_mod_compilers_json()
+        
+        else:
+            self.recomp_compiler_info = json.loads(self.recomp_user_compilers_path.read_text())
+            
+    def create_user_mod_compilers_json(self):
+        self.recomp_compiler_info = {
+            "mod_compiling": {
+                "compiler": "clang",
+                "linker": "ld.lld"
+            }
+        }
+        self.recomp_user_compilers_path.write_text(json.dumps(self.recomp_compiler_info, indent=4))
+    
     def get_mod_file(self):
-        # print(f"{self.mod_data['inputs']['mod_filename']}.nrm")
         name = f"{self.mod_data['inputs']['mod_filename']}.nrm"
         print(self.build_dir.joinpath(name))
     
     def get_mod_elf(self):
         print(self.mod_toml_file.parent.joinpath(self.mod_data['inputs']['elf_path']))
+        
+    def get_mod_compiler(self):
+        print(self.recomp_compiler_info["mod_compiling"]["compiler"])
+        
+    def get_mod_linker(self):
+        print(self.recomp_compiler_info["mod_compiling"]["linker"])
 
     def create_asset_archive(self, assets_extract_path_str: str):
             assets_extract_path = self.project_root.joinpath(assets_extract_path_str)
