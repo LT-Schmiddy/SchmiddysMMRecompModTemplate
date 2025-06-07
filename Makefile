@@ -203,4 +203,4 @@ endif
 
 -include $(C_DEPS)
 
-.PHONY: all runtime nrm native offline extlib-all extlib-win extlib-macos extlib-linux extlib-native clean clean-build
+.PHONY: all native windows macos linux runtime nrm offline extlib-all extlib-win extlib-macos extlib-linux extlib-native clean clean-build

@@ -1,31 +1,59 @@
 # Majora's Mask: Recompiled Mod Template
 
-This is an example mod for Majora's Mask: Recompiled that can be used as a template for creating mods. It has a basic build system, headers, sample code, and a mod config toml.
+This my custom version of the Majora's Mask: Recompiled mod template. It offers a number of features that the base template doesn't have, including:
 
-Example code for using the recompui API to build ingame UI can be found in the `ui-example` branch.
+* Optional building of external libraries (referred to as extlibs) alongside the mod nrm, and keeping the code for both in the same repository.
+* Cross-compilation of extlibs using Zig (extlib code is still written in C/C++).
+* Dedicated testing environment for mods in the form of the `runtime` directory.
+* Automatic creation of Thunderstore packages via a script.
+* Easy integration of non-standard clang versions (such the MIPS-only `clang` package I maintain), in case your system `clang` doesn't support MIPS.
 
-### Writing mods
+## Writing mods
+
 See [this document](https://hackmd.io/fMDiGEJ9TBSjomuZZOgzNg) for an explanation of the modding framework, including how to write function patches and perform interop between different mods.
 
 ## Tools
 
-You'll need to install `clang` and `make` to build this template.
+This template has somewhat different requirements from the default mod template. In order to run it, you'll need the following:
+
+* `make`
+* `cmake`
+* `ninja`
+* `python` (or `python3` on POSIX systems).
+* `zig`
+
+On Linux and MacOS, you'll need to also ensure that you have the `zip` utility installed.
+
+All of these can (and should) be installed via using [chocolatey](https://chocolatey.org/) on Windows, Homebrew on MacOS, or your distro's package manager on Linux.
+
+You do NOT need the `RecompModTool` tool, as the build script will compile all of the N64Recomp tools for you.
+
+You'll need a `gcc` compatible compiler and linker with MIPS support. `clang` and `ld.lld` (part of the llvm toolset) are recommended.
 
 * On Windows, using [chocolatey](https://chocolatey.org/) to install both is recommended. The packages are `llvm` and `make` respectively.
   * The LLVM 19.1.0 [llvm-project](https://github.com/llvm/llvm-project) release binary, which is also what chocolatey provides, does not support MIPS correctly. The solution is to install 18.1.8 instead, which can be done in chocolatey by specifying `--version 18.1.8` or by downloading the 18.1.8 release directly.
 * On Linux, these can both be installed using your distro's package manager.
 * On MacOS, these can both be installed using Homebrew. Apple clang won't work, as you need a mips target for building the mod code.
 
-On Linux and MacOS, you'll need to also ensure that you have the `zip` utility installed.
-
-You'll also need to grab a build of the `RecompModTool` utility from the releases of [N64Recomp](https://github.com/N64Recomp/N64Recomp). You can also build it yourself from that repo if desired.
+Alternatively, if you don't want to downgrade your clang version (or want a later version than what's provided for your system), I maintain [MIPS-only builds of the latest llvm utilities](https://github.com/LT-Schmiddy/n64recomp-clang/releases/latest). They're what I use. I recommend the `N64RecompEssentials` packages, as they only have the tools that are useful for working with recomp mods.
 
 ## Building
 
-* First, run `make` (with an optional job count) to build the mod code itself.
-* Next, run the `RecompModTool` utility with `mod.toml` as the first argument and the build dir (`build` in the case of this template) as the second argument.
-  * This will produce your mod's `.nrm` file in the build folder.
-  * If you're on MacOS, you may need to specify the path to the `clang` and `ld.lld` binaries using the `CC` and `LD` environment variables, respectively.
+Run `git submodule update --init --recursive` to make sure you've clones all submodules. Then, run `make` (with an optional job count) to build everything.
+
+Alternatively, you can also use special target invokations to only build specific things, such as the mod `.nrm` file or the extlib for a specific platform.
+See the Makefile for all valid targets.
+
+This repo is set up for building an extlib by default. If your mod isn't meant to have an extlib, simply remove the `extlib_compilation` section from your
+`mod.toml`, and the build scripts will disable all extlib handling when building the `all` target.
+
+On your first run, a file called `user_build_config.json` will be created at the root of the repo. Here you can set the command/path for the compiler and linker
+you want to use for your mod code. If you want to use my MIPS-only clang builds (or any compiler not on the system path), this is an easy way to set them up.
+
+## Testing
+
+This template includes handling of a dedicated testing environment for you mod in the form of the `./runtime` folder. First, create `./runtime` in your
+mod's root directory and copy in recomp's `assets` directory into it (You can also copy anyu config files, saves, and other mods you want to test against). After a build, your mod's `.nrm` file (and extlib file, if one is being built) will be copied to a folder called `./runtime/mods`, and a file called `./runtime/portable.txt` will be created. When debugging, use `runtime` and as your CWD, and when you build, everything's ready to go for immediate testing.
 
 ## Updating the Majora's Mask Decompilation Submodule
 
