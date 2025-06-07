@@ -27,25 +27,27 @@ ZIG_LINUX_PRESET ?= zig-linux-x64
 ifeq ($(OS),Windows_NT)
 # CC      := clang
 # LD      := ld.lld
-NATIVE_CMAKE_PRESET := native-windows-x64
-NATIVE_ZIG_TRIPLET := x86_64-windows
+NATIVE_CMAKE_PRESET ?= native-windows-x64
+NATIVE_ZIG_TRIPLET ?= x86_64-windows
 NATIVE_SUBDIR := bin
 NATIVE_EXTENSION := dll
 else ifneq ($(shell uname),Darwin)
 # CC      := clang
 # LD      := ld.lld
-NATIVE_CMAKE_PRESET := native-linux-x64
-NATIVE_ZIG_TRIPLET := x86_64-linux
+NATIVE_CMAKE_PRESET ?= native-linux-x64
+NATIVE_ZIG_TRIPLET ?= x86_64-linux
 NATIVE_SUBDIR := lib
 NATIVE_EXTENSION := so
 else
 # CC      ?= clang
 # LD      ?= ld.lld
-NATIVE_CMAKE_PRESET := native-macos-x64
-NATIVE_ZIG_TRIPLET := aarch64-macos
+NATIVE_CMAKE_PRESET ?= native-macos-x64
+NATIVE_ZIG_TRIPLET ?= aarch64-macos
 NATIVE_SUBDIR := lib
 NATIVE_EXTENSION := dylib
 endif
+
+MOD_TOOL_ZIG_TRIPLET ?= $(NATIVE_ZIG_TRIPLET)
 
 define extlib_build_file
 $(BUILD_DIR)/$(1)-$(2)/$(3)/$(EXTLIB_PREFIX)$(EXTLIB_NAME).$(4)
@@ -73,8 +75,7 @@ define get_python_val
 $(shell $(PYTHON_EXEC) -c "import $(PYTHON_FUNC_MODULE); print($(PYTHON_FUNC_MODULE).ModInfo(\"$(MOD_TOML)\", \"$(BUILD_DIR)\").set_extlib_info(\"$(LIB_BUILD_WIN)\", \"$(LIB_BUILD_MACOS)\", \"$(LIB_BUILD_LINUX)\", \"$(LIB_BUILD_NATIVE)\").$(1))")
 endef
 
-# Allow the user to specify the compiler and linker on macOS
-# as Apple Clang does not support MIPS architecture
+# Get the mod code compilers from a config.
 CC      := $(call get_python_func,get_mod_compiler,)
 LD      := $(call get_python_func,get_mod_linker,)
 
@@ -158,7 +159,7 @@ $(ASSETS_INCLUDE_DIR):
 
 # Recomp Tools Recipes:
 $(RECOMP_MOD_TOOL): $(N64RECOMP_BUILD_DIR) 
-	cmake -DCMAKE_TOOLCHAIN_FILE="../zig_toolchain.cmake" -DZIG_TARGET="$(NATIVE_ZIG_TRIPLET)" -G Ninja \
+	cmake -DCMAKE_TOOLCHAIN_FILE="../zig_toolchain.cmake" -DZIG_TARGET="$(MOD_TOOL_ZIG_TRIPLET)" -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release -S $(N64RECOMP_DIR) -B $(N64RECOMP_BUILD_DIR) 
 	cmake --build $(N64RECOMP_BUILD_DIR)
 
