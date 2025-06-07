@@ -115,6 +115,9 @@ else
 all: nrm extlib-all runtime
 endif
 
+thunderstore:
+	python ./create_thunderstore_package.py
+
 native: nrm extlib-native runtime_native
 
 windows: nrm extlib-win runtime

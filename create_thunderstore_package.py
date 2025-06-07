@@ -135,6 +135,7 @@ def create_archive(package_dir: Path, dst_path: Path):
     new_zip.close()
 
 def create_package():
+    global extlib_name, info
     bm.run_build(["EXTLIB_CMAKE_PRESET_GROUP=Release"])
     
     fully_collected = True
@@ -158,18 +159,18 @@ def create_package():
         
     icon_file = package_dir.joinpath("icon.png")
     if not icon_file.is_file():
-        fully_collected = fully_collected and copy_icon(info.project_root.joinpath("thumb.png"), icon_file)
+        fully_collected = copy_icon(info.project_root.joinpath("thumb.png"), icon_file) and fully_collected
     
     mod_file = package_dir.joinpath(info.build_nrm_file.name)
-    fully_collected = fully_collected and copy_mod(info.build_nrm_file, mod_file)
+    fully_collected = copy_mod(info.build_nrm_file, mod_file) and fully_collected
     
     if extlib_name is not None:
         dll_file = package_dir.joinpath(info.runtime_dll_file.name)
         dylib_file = package_dir.joinpath(info.runtime_dylib_file.name)
         so_file = package_dir.joinpath(info.runtime_so_file.name)
-        fully_collected = fully_collected and copy_extlib(info.build_dll_file, dll_file)
-        fully_collected = fully_collected and copy_extlib(info.build_dylib_file, dylib_file)
-        fully_collected = fully_collected and copy_extlib(info.build_so_file, so_file)
+        fully_collected = copy_extlib(info.build_dll_file, dll_file) and fully_collected
+        fully_collected = copy_extlib(info.build_dylib_file, dylib_file) and fully_collected
+        fully_collected = copy_extlib(info.build_so_file, so_file) and fully_collected
     
     if fully_collected:
         print("Fully collected. Zipping mod package.")
