@@ -114,9 +114,9 @@ class ModInfo:
         self.user_config_path.write_text(json.dumps(self.user_config, indent=4))
     
     def get_native_preset(self, build_type: str):
-        if platform.platform() == "Windows":
+        if platform.system() == "Windows":
             return f"native-windows-x64-{build_type}"
-        elif platform.platform() == "Darwin":
+        elif platform.system() == "Darwin":
             return f"native-macos-aarch64-{build_type}"
         else:
             return f"native-linux-x64-{build_type}"
