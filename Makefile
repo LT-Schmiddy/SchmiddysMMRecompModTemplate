@@ -119,7 +119,7 @@ create_user_build_config:
 	$(call call_python_func,create_user_build_config,)
 
 thunderstore:
-	python ./create_thunderstore_package.py
+	$(PYTHON_EXEC) ./create_thunderstore_package.py
 
 native: nrm extlib-native runtime_native
 
@@ -149,18 +149,19 @@ elf: $(MOD_ELF)
 $(MOD_ELF): $(C_OBJS) $(LDSCRIPT) | $(BUILD_DIR) $(ASSETS_INCLUDE_DIR)
 	$(LD) $(C_OBJS) $(LDFLAGS) -o $@
 
-$(BUILD_DIR) $(BUILD_DIR)/src $(BUILD_DIR)/src/mod $(N64RECOMP_BUILD_DIR):
+$(N64RECOMP_BUILD_DIR) $(BUILD_DIR) $(BUILD_DIR)/src $(BUILD_DIR)/src/mod:
 ifeq ($(OS),Windows_NT)
 	mkdir $(subst /,\,$@)
 else
 	mkdir -p $@
 endif
 
-$(C_OBJS): $(BUILD_DIR)/%.o : %.c | $(BUILD_DIR) $(BUILD_DIR)/src/mod
-	$(CC) $(CFLAGS) $(CPPFLAGS) $< -MMD -MF $(@:.o=.d) -c -o $@
-
 $(ASSETS_INCLUDE_DIR):
 	$(call call_python_func,create_asset_archive,\"$(ASSETS_INCLUDE_DIR)\")
+
+$(C_OBJS): $(BUILD_DIR)/%.o : %.c | $(ASSETS_INCLUDE_DIR) $(BUILD_DIR) $(BUILD_DIR)/src $(BUILD_DIR)/src/mod
+	$(CC) $(CFLAGS) $(CPPFLAGS) $< -MMD -MF $(@:.o=.d) -c -o $@
+
 
 # Recomp Tools Recipes:
 $(RECOMP_MOD_TOOL): $(N64RECOMP_BUILD_DIR) 
