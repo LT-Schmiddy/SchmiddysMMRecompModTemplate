@@ -8,8 +8,6 @@ on:
   push:
     tags:
       - "release-*.*.*"
-  pull_request:
-    branches: [ "custom-main" ]
 jobs:
   build:
     outputs:
