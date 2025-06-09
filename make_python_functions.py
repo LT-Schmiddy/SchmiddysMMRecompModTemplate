@@ -77,16 +77,16 @@ class ModInfo:
                 "preset_groups": {
                     "Debug": {
                         "windows": {
-                            "configure": self.mod_data['extlib_compilation']['windows_debug_configure_preset'],
-                            "build": self.mod_data['extlib_compilation']['windows_debug_build_preset']
+                            "configure": self.mod_data['extlib_compiling']['windows_debug_configure_preset'],
+                            "build": self.mod_data['extlib_compiling']['windows_debug_build_preset']
                         },
                         "macos": {
-                            "configure": self.mod_data['extlib_compilation']['macos_debug_configure_preset'],
-                            "build": self.mod_data['extlib_compilation']['macos_debug_build_preset']
+                            "configure": self.mod_data['extlib_compiling']['macos_debug_configure_preset'],
+                            "build": self.mod_data['extlib_compiling']['macos_debug_build_preset']
                         },
                         "linux": {
-                            "configure": self.mod_data['extlib_compilation']['linux_debug_configure_preset'],
-                            "build": self.mod_data['extlib_compilation']['linux_debug_build_preset']
+                            "configure": self.mod_data['extlib_compiling']['linux_debug_configure_preset'],
+                            "build": self.mod_data['extlib_compiling']['linux_debug_build_preset']
                         },
                         "native": {
                             "configure": self.get_native_preset("Debug"),
@@ -95,16 +95,16 @@ class ModInfo:
                     },
                     "Release": {
                         "windows": {
-                            "configure": self.mod_data['extlib_compilation']['windows_release_configure_preset'],
-                            "build": self.mod_data['extlib_compilation']['windows_release_build_preset']
+                            "configure": self.mod_data['extlib_compiling']['windows_release_configure_preset'],
+                            "build": self.mod_data['extlib_compiling']['windows_release_build_preset']
                         },
                         "macos": {
-                            "configure": self.mod_data['extlib_compilation']['macos_release_configure_preset'],
-                            "build": self.mod_data['extlib_compilation']['macos_release_build_preset']
+                            "configure": self.mod_data['extlib_compiling']['macos_release_configure_preset'],
+                            "build": self.mod_data['extlib_compiling']['macos_release_build_preset']
                         },
                         "linux": {
-                            "configure": self.mod_data['extlib_compilation']['linux_release_configure_preset'],
-                            "build": self.mod_data['extlib_compilation']['linux_release_build_preset']
+                            "configure": self.mod_data['extlib_compiling']['linux_release_configure_preset'],
+                            "build": self.mod_data['extlib_compiling']['linux_release_build_preset']
                         },
                         "native": {
                             "configure": self.get_native_preset("Release"),
