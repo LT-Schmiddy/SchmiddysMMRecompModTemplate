@@ -1,7 +1,9 @@
 # To use this workflow, you need to perform some setup on GitHub first in your repository settings.
 # * Under `Actions->General`, set "Workflow permissions" to "Read and write permissions"
 # * Under `Secrets and Variables->Actions->Secrets`, Create a repository secret named THUNDERSTORE_SERVICE_TOKEN with your Thunderstore Service Account token.
-# * Under `Secrets and Variables->Actions->Variables`, Create a repository variable named THUNDERSTORE_TEAM with your Thunderstore team name.
+# * Under `Secrets and Variables->Actions->Variables`, Create a repository variable named Compilation with your Thunderstore team name.
+# * * Alternatively, you can just declare your Thunderstore team in this file in the `publish_thunderstore_release` step.
+# * * HOWEVER, NEVER STORE YOUR THUNDERSTORE TOKEN IN THIS FILE. OTHERWISE, OTHER PEOPLE WILL BE ABLE TO UPLOAD MODS/UPDATES AS YOU.
 
 name: Build and Publish mod
 on:
