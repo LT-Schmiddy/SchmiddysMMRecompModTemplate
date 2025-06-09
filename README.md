@@ -26,9 +26,9 @@ On Linux and MacOS, you'll need to also ensure that you have the `zip` utility i
 
 All of these can (and should) be installed via using [chocolatey](https://chocolatey.org/) on Windows, Homebrew on MacOS, or your distro's package manager on Linux.
 
-You do NOT need the `RecompModTool` tool, as the build script will compile all of the N64Recomp tools for you.
+**You do NOT need the `RecompModTool` tool, as the build script will compile all of the N64Recomp tools for you.**
 
-You'll need a `gcc` compatible compiler and linker with MIPS support. `clang` and `ld.lld` (part of the llvm toolset) are recommended.
+You'll also need a `gcc` compatible compiler and linker with MIPS support. `clang` and `ld.lld` (part of the llvm toolset) are recommended.
 
 * On Windows, using [chocolatey](https://chocolatey.org/) to install both is recommended. The packages are `llvm` and `make` respectively.
   * The LLVM 19.1.0 [llvm-project](https://github.com/llvm/llvm-project) release binary, which is also what chocolatey provides, does not support MIPS correctly. The solution is to install 18.1.8 instead, which can be done in chocolatey by specifying `--version 18.1.8` or by downloading the 18.1.8 release directly.
