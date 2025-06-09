@@ -70,20 +70,23 @@ class ModInfo:
                 "compiler": "clang",
                 "linker": "ld.lld"
             },
-            "extlib_compiling": {
+        }
+        
+        if 'extlib_compiling' in self.mod_data:
+            self.user_config["extlib_compiling"] = {
                 "preset_groups": {
                     "Debug": {
                         "windows": {
-                            "configure": "zig-windows-x64-Debug",
-                            "build": "zig-windows-x64-Debug"
+                            "configure": self.mod_data['extlib_compilation']['windows_debug_configure_preset'],
+                            "build": self.mod_data['extlib_compilation']['windows_debug_build_preset']
                         },
                         "macos": {
-                            "configure": "zig-macos-aarch64-Debug",
-                            "build": "zig-macos-aarch64-Debug"
+                            "configure": self.mod_data['extlib_compilation']['macos_debug_configure_preset'],
+                            "build": self.mod_data['extlib_compilation']['macos_debug_build_preset']
                         },
                         "linux": {
-                            "configure": "zig-linux-x64-Debug",
-                            "build": "zig-linux-x64-Debug"
+                            "configure": self.mod_data['extlib_compilation']['linux_debug_configure_preset'],
+                            "build": self.mod_data['extlib_compilation']['linux_debug_build_preset']
                         },
                         "native": {
                             "configure": self.get_native_preset("Debug"),
@@ -92,16 +95,16 @@ class ModInfo:
                     },
                     "Release": {
                         "windows": {
-                            "configure": "zig-windows-x64-Release",
-                            "build": "zig-windows-x64-Release"
+                            "configure": self.mod_data['extlib_compilation']['windows_release_configure_preset'],
+                            "build": self.mod_data['extlib_compilation']['windows_release_build_preset']
                         },
                         "macos": {
-                            "configure": "zig-macos-aarch64-Release",
-                            "build": "zig-macos-aarch64-Release"
+                            "configure": self.mod_data['extlib_compilation']['macos_release_configure_preset'],
+                            "build": self.mod_data['extlib_compilation']['macos_release_build_preset']
                         },
                         "linux": {
-                            "configure": "zig-linux-x64-Release",
-                            "build": "zig-linux-x64-Release"
+                            "configure": self.mod_data['extlib_compilation']['linux_release_configure_preset'],
+                            "build": self.mod_data['extlib_compilation']['linux_release_build_preset']
                         },
                         "native": {
                             "configure": self.get_native_preset("Release"),
@@ -110,7 +113,7 @@ class ModInfo:
                     }
                 }
             }
-        }
+            
         self.user_config_path.write_text(json.dumps(self.user_config, indent=4))
     
     def get_native_preset(self, build_type: str):
@@ -135,33 +138,49 @@ class ModInfo:
         return self.print_and_return(self.user_config["mod_compiling"]["linker"])
         
     def get_extlib_name(self):
-        if 'extlib_compilation' in self.mod_data:
-            return self.print_and_return(self.mod_data['extlib_compilation']['library_name'])
+        if 'extlib_compiling' in self.mod_data:
+            return self.print_and_return(self.mod_data['extlib_compiling']['library_name'])
         else:
             return self.print_and_return(None)
 
     def get_extlib_windows_configure_preset(self, build_type: str):
+        if 'extlib_compiling' not in self.mod_data: 
+            return None
         return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["windows"]["configure"])
 
     def get_extlib_macos_configure_preset(self, build_type: str):
+        if 'extlib_compiling' not in self.mod_data: 
+            return None
         return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["macos"]["configure"])
 
     def get_extlib_linux_configure_preset(self, build_type: str):
+        if 'extlib_compiling' not in self.mod_data: 
+            return None
         return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["linux"]["configure"])
 
     def get_extlib_native_configure_preset(self, build_type: str):
+        if 'extlib_compiling' not in self.mod_data: 
+            return None
         return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["native"]["configure"])
 
     def get_extlib_windows_build_preset(self, build_type: str):
+        if 'extlib_compiling' not in self.mod_data: 
+            return None
         return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["windows"]["build"])
 
     def get_extlib_macos_build_preset(self, build_type: str):
+        if 'extlib_compiling' not in self.mod_data: 
+            return None
         return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["macos"]["build"])
 
     def get_extlib_linux_build_preset(self, build_type: str):
+        if 'extlib_compiling' not in self.mod_data: 
+            return None
         return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["linux"]["build"])
 
     def get_extlib_native_build_preset(self, build_type: str):
+        if 'extlib_compiling' not in self.mod_data: 
+            return None
         return self.print_and_return(self.user_config["extlib_compiling"]["preset_groups"][build_type]["native"]["build"])
 
     def create_asset_archive(self, assets_extract_path_str: str):
@@ -180,7 +199,7 @@ class ModInfo:
         
         self.copy_if_exists(self.build_nrm_file, self.runtime_nrm_file)
         # If no extlib is being built, we don't need to try to find these.
-        if 'extlib_compilation' in self.mod_data:
+        if 'extlib_compiling' in self.mod_data:
             self.copy_if_exists(self.build_dll_file, self.runtime_dll_file)
             self.copy_if_exists(self.build_pdb_file, self.runtime_pdb_file)
             self.copy_if_exists(self.build_dylib_file, self.runtime_dylib_file)
@@ -196,7 +215,7 @@ class ModInfo:
         
         self.copy_if_exists(self.build_nrm_file, self.runtime_nrm_file)
         # If no extlib is being built, we don't need to try to find these.
-        if 'extlib_compilation' in self.mod_data:
+        if 'extlib_compiling' in self.mod_data:
             self.copy_if_exists(self.build_native_file, self.runtime_native_file)
             self.copy_if_exists(self.build_native_pdb_file, self.runtime_native_pdb_file)
 

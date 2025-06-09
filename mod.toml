@@ -63,10 +63,30 @@ additional_files = [ ]
 
 # Info for building the extlib. If this mod will have no extlib, remove this section and
 # the build scripts disable extlib compilation and packaging.
-[extlib_compilation]
+# [extlib_compiling]
 
-# Name of the extlib. This information is passed to CMake as the target name for the extlib.
-library_name = "mm_recomp_mod_template_extlib"
+# # Name of the extlib. This information is passed to CMake as the target name for the extlib.
+# library_name = "mm_recomp_mod_template_extlib"
+
+# # CMake presets for Debug builds. Used to contruct preset groups in `user_build_config.json`.
+# windows_debug_configure_preset = "zig-windows-x64-Debug"
+# windows_debug_build_preset = "zig-windows-x64-Debug"
+
+# macos_debug_configure_preset = "zig-macos-aarch64-Debug"
+# macos_debug_build_preset = "zig-macos-aarch64-Debug"
+
+# linux_debug_configure_preset = "zig-linux-x64-Debug"
+# linux_debug_build_preset = "zig-linux-x64-Debug"
+
+# # CMake presets for Release builds. Used to contruct preset groups in `user_build_config.json`.
+# windows_release_configure_preset = "zig-windows-x64-Release"
+# windows_release_build_preset = "zig-windows-x64-Release"
+
+# macos_release_configure_preset = "zig-macos-aarch64-Release"
+# macos_release_build_preset = "zig-macos-aarch64-Release"
+
+# linux_release_configure_preset = "zig-linux-x64-Release"
+# linux_release_build_preset = "zig-linux-x64-Release"
 
 # Mod config options
 [[manifest.config_options]]
