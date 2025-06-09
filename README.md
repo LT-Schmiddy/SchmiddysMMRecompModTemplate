@@ -51,6 +51,16 @@ On your first run, a file called `user_build_config.json` will be created at the
 you want to use for your mod code. If you want to use my MIPS-only clang builds (or any compiler not on the system path), this is an easy way to set them up.
 You can also set which CMake presets you want to use for building your external library.
 
+## Extlib Compilation and Cross-Compilation
+
+This template is set up to automatically build and cross-compile your extlib code (via CMake and Zig) alongside your mod code when you invoke `make`.
+CMake presets are used to handle any configuration differences between target platforms ([More info about CMake presets can be found
+here](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html)). The default presets to use for each can be set in the `extlib_compiling`
+section of your `mod.toml`. These are copied into `user_build_config.json` when the file is created. If you want to use a different preset for
+a platform when compiling on your local system, without changing the default, you can change the preset in `user_build_config.json`.
+
+More information about extlib compiling can be found in the `mod.toml` file.
+
 ## Testing
 
 This template includes handling of a dedicated testing environment for you mod in the form of the `./runtime` folder. First, create `./runtime` in your
