@@ -1,4 +1,4 @@
-# Majora's Mask: Recompiled Mod Template
+# LTSchmiddy's Majora's Mask: Recompiled Mod Template
 
 This my custom version of the Majora's Mask: Recompiled mod template. It offers a number of features that the base template doesn't have, including:
 
@@ -51,7 +51,7 @@ On your first run, a file called `user_build_config.json` will be created at the
 you want to use for your mod code. If you want to use my MIPS-only clang builds (or any compiler not on the system path), this is an easy way to set them up.
 You can also set which CMake presets you want to use for building your external library.
 
-## Extlib Compilation and Cross-Compilation
+## Extlib Compilation, Cross-Compilation, and CMake Presets
 
 This template is set up to automatically build and cross-compile your extlib code (via CMake and Zig) alongside your mod code when you invoke `make`.
 CMake presets are used to handle any configuration differences between target platforms ([More info about CMake presets can be found
