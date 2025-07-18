@@ -20,7 +20,8 @@
                 "F3DEX_GBI_2",
                 "_LANGUAGE_C",
                 "MIPS",
-                "COMBINED_INTELLISENSE"
+                "COMBINED_INTELLISENSE",
+                "RECOMP_INCBIN_EXTERN_ONLY"
             ],
             // "compilerPath": "clang",
             "cStandard": "c99",
