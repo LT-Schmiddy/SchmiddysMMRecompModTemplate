@@ -32,7 +32,7 @@ You'll also need a `gcc` compatible compiler and linker with MIPS support. `clan
 
 * On Windows, using [chocolatey](https://chocolatey.org/) to install both is recommended. The packages are `llvm` and `make` respectively.
   * The LLVM 19.1.0 [llvm-project](https://github.com/llvm/llvm-project) release binary, which is also what chocolatey provides, does not support MIPS correctly. The solution is to install 18.1.8 instead, which can be done in chocolatey by specifying `--version 18.1.8` or by downloading the 18.1.8 release directly.
-* On Linux, these can both be installed using your distro's package manager.
+* On Linux, these can both be installed using your distro's package manager. You may also need to install your distro's package for the `lld` linker. On Debian/Ubuntu based distros this will be the `lld` package.
 * On MacOS, these can both be installed using Homebrew. Apple clang won't work, as you need a mips target for building the mod code.
 
 Alternatively, if you don't want to downgrade your clang version (or want a later version than what's provided for your system), I maintain [MIPS-only builds of the latest llvm utilities](https://github.com/LT-Schmiddy/n64recomp-clang/releases/latest). They're what I use. I recommend the `N64RecompEssentials` packages, as they only have the tools that are useful for working with recomp mods.
