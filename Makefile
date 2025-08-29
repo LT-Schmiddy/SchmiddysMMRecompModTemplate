@@ -217,7 +217,7 @@ endif
 
 -include $(ALL_DEPS)
 
-.PHONY: all native windows macos linux runtime nrm offline extlib-all extlib-win extlib-macos extlib-linux extlib-native clean clean-build
+.PHONY: all native windows macos linux runtime nrm offline extlib-all extlib-win extlib-macos extlib-linux extlib-native distclean clean
 
 # Print target for debugging
 print-% : ; $(info $* is a $(flavor $*) variable set to [$($*)]) @true
