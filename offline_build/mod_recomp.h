@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <fenv.h>
 #include <assert.h>
 
 #if defined(_WIN32)
@@ -135,6 +136,124 @@ static inline void do_swr(uint8_t* rdram, gpr offset, gpr reg, gpr val) {
     MEM_W(0, word_address) = masked_initial_value | shifted_input_value;
 }
 
+static inline gpr do_ldl(uint8_t* rdram, gpr initial_value, gpr offset, gpr reg) {
+    // Calculate the overall address
+    gpr address = (offset + reg);
+
+    // Load the aligned dword
+    gpr dword_address = address & ~0x7;
+    uint64_t loaded_value = load_doubleword(rdram, 0, dword_address);
+
+    // Mask the existing value and shift the loaded value appropriately
+    gpr misalignment = address & 0x7;
+    gpr masked_value = initial_value & ~(0xFFFFFFFFFFFFFFFFu << (misalignment * 8));
+    loaded_value <<= (misalignment * 8);
+
+    return masked_value | loaded_value;
+}
+
+static inline gpr do_ldr(uint8_t* rdram, gpr initial_value, gpr offset, gpr reg) {
+    // Calculate the overall address
+    gpr address = (offset + reg);
+    
+    // Load the aligned dword
+    gpr dword_address = address & ~0x7;
+    uint64_t loaded_value = load_doubleword(rdram, 0, dword_address);
+
+    // Mask the existing value and shift the loaded value appropriately
+    gpr misalignment = address & 0x7;
+    gpr masked_value = initial_value & ~(0xFFFFFFFFFFFFFFFFu >> (56 - misalignment * 8));
+    loaded_value >>= (56 - misalignment * 8);
+
+    return masked_value | loaded_value;
+}
+
+static inline void do_sdl(uint8_t* rdram, gpr offset, gpr reg, gpr val) {
+    // Calculate the overall address
+    gpr address = (offset + reg);
+
+    // Get the initial value of the aligned dword
+    gpr dword_address = address & ~0x7;
+    uint64_t initial_value = load_doubleword(rdram, 0, dword_address);
+
+    // Mask the initial value and shift the input value appropriately
+    gpr misalignment = address & 0x7;
+    uint64_t masked_initial_value = initial_value & ~(0xFFFFFFFFFFFFFFFFu >> (misalignment * 8));
+    uint64_t shifted_input_value = val >> (misalignment * 8);
+
+    uint64_t ret = masked_initial_value | shifted_input_value;
+    uint32_t lo = (uint32_t)ret;
+    uint32_t hi = (uint32_t)(ret >> 32);
+
+    MEM_W(0, dword_address + 4) = lo;
+    MEM_W(0, dword_address + 0) = hi;
+}
+
+static inline void do_sdr(uint8_t* rdram, gpr offset, gpr reg, gpr val) {
+    // Calculate the overall address
+    gpr address = (offset + reg);
+
+    // Get the initial value of the aligned dword
+    gpr dword_address = address & ~0x7;
+    uint64_t initial_value = load_doubleword(rdram, 0, dword_address);
+
+    // Mask the initial value and shift the input value appropriately
+    gpr misalignment = address & 0x7;
+    uint64_t masked_initial_value = initial_value & ~(0xFFFFFFFFFFFFFFFFu << (56 - misalignment * 8));
+    uint64_t shifted_input_value = val << (56 - misalignment * 8);
+    
+    uint64_t ret = masked_initial_value | shifted_input_value;
+    uint32_t lo = (uint32_t)ret;
+    uint32_t hi = (uint32_t)(ret >> 32);
+
+    MEM_W(0, dword_address + 4) = lo;
+    MEM_W(0, dword_address + 0) = hi;
+}
+
+static inline uint32_t get_cop1_cs() {
+    uint32_t rounding_mode = 0;
+    switch (fegetround()) {
+        // round to nearest value
+        case FE_TONEAREST:
+        default:
+            rounding_mode = 0;
+            break;
+        // round to zero (truncate)
+        case FE_TOWARDZERO:
+            rounding_mode = 1;
+            break;
+        // round to positive infinity (ceil)
+        case FE_UPWARD:
+            rounding_mode = 2;
+            break;
+        // round to negative infinity (floor)
+        case FE_DOWNWARD:
+            rounding_mode = 3;
+            break;
+    }
+    return rounding_mode;
+}
+
+static inline void set_cop1_cs(uint32_t val) {
+    uint32_t rounding_mode = val & 0x3;
+    int round = FE_TONEAREST;
+    switch (rounding_mode) {
+        case 0: // round to nearest value
+            round = FE_TONEAREST;
+            break;
+        case 1: // round to zero (truncate)
+            round = FE_TOWARDZERO;
+            break;
+        case 2: // round to positive infinity (ceil)
+            round = FE_UPWARD;
+            break;
+        case 3: // round to negative infinity (floor)
+            round = FE_DOWNWARD;
+            break;
+    }
+    fesetround(round);
+}
+
 #define S32(val) \
     ((int32_t)(val))
     
@@ -185,41 +304,37 @@ static inline void do_swr(uint8_t* rdram, gpr offset, gpr reg, gpr val) {
 
 #define DEFAULT_ROUNDING_MODE 0
 
-static inline int32_t do_cvt_w_s(float val, unsigned int rounding_mode) {
-    switch (rounding_mode) {
-        case 0: // round to nearest value
-            return (int32_t)lroundf(val);
-        case 1: // round to zero (truncate)
-            return (int32_t)val;
-        case 2: // round to positive infinity (ceil)
-            return (int32_t)ceilf(val);
-        case 3: // round to negative infinity (floor)
-            return (int32_t)floorf(val);
-    }
-    assert(0);
-    return 0;
+static inline int32_t do_cvt_w_s(float val) {
+    // Rounding mode aware float to 32-bit int conversion.
+    return (int32_t)lrintf(val);
 }
 
 #define CVT_W_S(val) \
-    do_cvt_w_s(val, rounding_mode)
+    do_cvt_w_s(val)
 
-static inline int32_t do_cvt_w_d(double val, unsigned int rounding_mode) {
-    switch (rounding_mode) {
-        case 0: // round to nearest value
-            return (int32_t)lround(val);
-        case 1: // round to zero (truncate)
-            return (int32_t)val;
-        case 2: // round to positive infinity (ceil)
-            return (int32_t)ceil(val);
-        case 3: // round to negative infinity (floor)
-            return (int32_t)floor(val);
-    }
-    assert(0);
-    return 0;
+static inline int64_t do_cvt_l_s(float val) {
+    // Rounding mode aware float to 64-bit int conversion.
+    return (int64_t)llrintf(val);
+}
+
+#define CVT_L_S(val) \
+    do_cvt_l_s(val);
+
+static inline int32_t do_cvt_w_d(double val) {
+    // Rounding mode aware double to 32-bit int conversion.
+    return (int32_t)lrint(val);
 }
 
 #define CVT_W_D(val) \
-    do_cvt_w_d(val, rounding_mode)
+    do_cvt_w_d(val)
+
+static inline int64_t do_cvt_l_d(double val) {
+    // Rounding mode aware double to 64-bit int conversion.
+    return (int64_t)llrint(val);
+}
+
+#define CVT_L_D(val) \
+    do_cvt_l_d(val)
 
 #define NAN_CHECK(val) \
     assert(val == val)

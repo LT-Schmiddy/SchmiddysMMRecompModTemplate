@@ -94,18 +94,26 @@ MOD_BINARY := $(BUILD_DIR)/mod_binary.bin
 ZELDA_SYMS := Zelda64RecompSyms/mm.us.rev1.syms.toml
 OFFLINE_C_OUTPUT := $(BUILD_DIR)/mod_offline.c
 LDSCRIPT := mod.ld
-CFLAGS   := -target mips -mips2 -mabi=32 -O2 -G0 -mno-abicalls -mno-odd-spreg -mno-check-zero-division \
-			-fomit-frame-pointer -ffast-math -fno-unsafe-math-optimizations -fno-builtin-memset \
-			-Wall -Wextra -Wno-incompatible-library-redeclaration -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-variable \
-			-Wno-missing-braces -Wno-unsupported-floating-point-opt -Werror=section
-CPPFLAGS := -nostdinc -D_LANGUAGE_C -DMIPS -DF3DEX_GBI_2 -DF3DEX_GBI_PL -DGBI_DOWHILE -I include -I include/mod -I include/mod/dummy_headers \
-			-I src/mod -I include/shared -I mm-decomp/include -I mm-decomp/src -I mm-decomp/extracted/n64-us -I mm-decomp/include/libc \
+ARCHFLAGS := -target mips -mips2 -mabi=32 -O2 -G0 -mno-abicalls -mno-odd-spreg -mno-check-zero-division \
+             -fomit-frame-pointer -ffast-math -fno-unsafe-math-optimizations -fno-builtin-memset
+WARNFLAGS := -Wall -Wextra -Wno-incompatible-library-redeclaration -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-variable \
+             -Wno-missing-braces -Wno-unsupported-floating-point-opt -Werror=section
+CFLAGS   := $(ARCHFLAGS) $(WARNFLAGS) -D_LANGUAGE_C -nostdinc -ffunction-sections
+CPPFLAGS := -DMIPS -DF3DEX_GBI_2 -DF3DEX_GBI_PL -DGBI_DOWHILE -I include -I include/mod -I include/mod/dummy_headers \
+            -I src/mod -I include/shared -I mm-decomp/include -I mm-decomp/src -I mm-decomp/extracted/n64-us -idirafter include/libc -idirafter mm-decomp/include/libc \
 			-I assets_extracted -I assets_extracted/assets -I assets_extracted/assets/assets
-LDFLAGS  := -nostdlib -T $(LDSCRIPT) -Map $(BUILD_DIR)/mod.map --unresolved-symbols=ignore-all --emit-relocs -e 0 --no-nmagic
+LDFLAGS  := -nostdlib -T $(LDSCRIPT) -Map $(BUILD_DIR)/mod.map --unresolved-symbols=ignore-all --emit-relocs -e 0 --no-nmagic -gc-sections
 
-C_SRCS := $(wildcard src/mod/*.c) $(wildcard src/lib/*.c)
+rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
+getdirs = $(sort $(dir $(1)))
+
+C_SRCS := $(call rwildcard,src/mod,*.c)
 C_OBJS := $(addprefix $(BUILD_DIR)/, $(C_SRCS:.c=.o))
 C_DEPS := $(addprefix $(BUILD_DIR)/, $(C_SRCS:.c=.d))
+
+ALL_OBJS := $(C_OBJS)
+ALL_DEPS := $(C_DEPS)
+BUILD_DIRS := $(call getdirs,$(ALL_OBJS))
 
 # General Recipes:
 # If no extlib is to be built, then don't include it in recipe 'all'
@@ -151,7 +159,7 @@ $(MOD_ELF): $(C_OBJS) $(LDSCRIPT) | $(BUILD_DIR) $(ASSETS_INCLUDE_DIR)
 
 $(N64RECOMP_BUILD_DIR) $(BUILD_DIR) $(BUILD_DIR)/src $(BUILD_DIR)/src/mod:
 ifeq ($(OS),Windows_NT)
-	mkdir $(subst /,\,$@)
+	if not exist "$(subst /,\,$@)" mkdir "$(subst /,\,$@)"
 else
 	mkdir -p $@
 endif
@@ -207,6 +215,9 @@ else
 	- rm -rf $(BUILD_DIR)
 endif
 
--include $(C_DEPS)
+-include $(ALL_DEPS)
 
 .PHONY: all native windows macos linux runtime nrm offline extlib-all extlib-win extlib-macos extlib-linux extlib-native clean clean-build
+
+# Print target for debugging
+print-% : ; $(info $* is a $(flavor $*) variable set to [$($*)]) @true
