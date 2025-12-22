@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraCommitChars": true,
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/py"
+    ]
+}
