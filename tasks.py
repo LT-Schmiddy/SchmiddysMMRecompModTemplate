@@ -192,8 +192,8 @@ def build(c: Context, skip_dependencies: bool = False, unresolved_jobs: bool = F
 
 @task(
     help={
-        'skip_dependencies': "Do not try to resolve dependency jobs.",
-        'name': f"Only write manifests for specific Thunderstore packages. Names should be the keys used in `project.thunderstore_packages`, separated by '{ARG_SPLIT_CHAR}'."
+        'name': f"Only write manifests for specific Thunderstore packages. Names should be the keys used in `project.thunderstore_packages`, separated by '{ARG_SPLIT_CHAR}'.",
+        'output_file': "Path to write the file to. Defaults to the manifest name in the current working directory."
     }
 )
 def manifest(c: Context, name: str = None, output_file: str = None):
