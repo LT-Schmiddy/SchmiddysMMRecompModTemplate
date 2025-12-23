@@ -5,7 +5,7 @@ from invoke import Context
 from .job_base import JobBase
 from .utils import invoke_subprocess_run, print_job_header, print_fl
 
-class TestDirJob(JobBase):
+class BuildOutputJob(JobBase):
     test_path: Path
     include_unresolved_jobs: bool
     include_all_resolved_jobs: bool
@@ -17,11 +17,11 @@ class TestDirJob(JobBase):
         self.include_all_resolved_jobs = False
         
     def run(self, c: Context):
-        print_job_header(f"Test Directory Job: {self.test_path}")
+        print_job_header(f"Build Output Job: {self.test_path}")
         
         os.makedirs(self.test_path, exist_ok=True)
         
-        for src, dst in self.get_recursive_mod_outputs(self.include_unresolved_jobs).items():
+        for dst, src in self.get_recursive_mod_outputs(self.include_unresolved_jobs).items():
             if not dst.is_absolute():
                 dst = self.test_path.joinpath(dst)
             
@@ -29,7 +29,7 @@ class TestDirJob(JobBase):
             shutil.copy(src, dst)
             
         if self.include_all_resolved_jobs:
-            for src, dst in self.get_all_resolved_mod_outputs().items():
+            for dst, src in self.get_all_resolved_mod_outputs().items():
                 if not dst.is_absolute():
                     dst = self.test_path.joinpath(dst)
                 

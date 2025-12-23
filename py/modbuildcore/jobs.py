@@ -2,7 +2,7 @@ from .archives import ArchiveExtractJob
 from .cmake import CMakeProjectConfig, CMakeBuildJob
 from .downloads import DownloadJob
 from .makefiles import MakefileJob
-from .test_dir import TestDirJob
+from .build_output import BuildOutputJob
 from .thunderstore import ThunderstorePackageJob
 from .tomls import ModTomlJob
 
@@ -12,7 +12,7 @@ __all__ = [
     'CMakeBuildJob',
     'DownloadJob',
     'MakefileJob',
-    'TestDirJob',
+    'BuildOutputJob',
     'ThunderstorePackageJob',
     'ModTomlJob',
 ]

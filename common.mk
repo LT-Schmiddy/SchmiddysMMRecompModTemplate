@@ -10,7 +10,6 @@ CPPFLAGS := -DMIPS -DF3DEX_GBI_2 -DF3DEX_GBI_PL -DGBI_DOWHILE \
 			-I include_in_dependents -I assets_extracted -I assets_extracted/assets -I assets_extracted/assets/assets \
 			-idirafter include/libc -idirafter mm-decomp/include/libc
 LDFLAGS  := -nostdlib -T $(LDSCRIPT) --unresolved-symbols=ignore-all --emit-relocs -e 0 --no-nmagic -gc-sections \
-			-L lib -lgcc_vr4300
 
 rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 getdirs = $(sort $(dir $(1)))

@@ -155,22 +155,22 @@ def cmake(c: Context, skip_dependencies: bool = False, group_name: str = None, b
                 build_job.resolve(c, skip_dependencies)
                     
 @task (
-    # default=True
+    default=True
 )
-def test(c: Context, skip_dependencies: bool = False, unresolved_jobs: bool = False, all_resolved_jobs: bool = False, name: str=None):
+def build(c: Context, skip_dependencies: bool = False, unresolved_jobs: bool = False, all_resolved_jobs: bool = False, name: str=None):
     """
     Updates the test environment mod folder with the resultant .nrm files and CMake build outputs from the current run.
     
     This utility decides which files to copy by tracking which ModTomlConfig and CMakeBuildConfig objects were processed while running.
     Therefore, if neither the `nrm` or `cmake` tasks were run in the current invokation, this command will do nothing.
     """
-    print_task_header("Preparing test folders...")
+    print_task_header("Preparing build output folders...")
     
-    test_dir_list : list[TestDirJob] = None
+    test_dir_list : list[BuildOutputJob] = None
     if name is None:
-        test_dir_list = p.test_dirs.values()
+        test_dir_list = p.build_outputs.values()
     else:
-        test_dir_list = [p.test_dirs[i] for i in name.split(ARG_SPLIT_CHAR)]
+        test_dir_list = [p.build_outputs[i] for i in name.split(ARG_SPLIT_CHAR)]
     
     for test_dir in test_dir_list:
         test_dir.include_unresolved_jobs = unresolved_jobs
@@ -208,7 +208,7 @@ def thunderstore(c: Context, skip_dependencies: bool = False, name: str = None):
 
 
 @task (
-    pre=[download, extract, makefile, nrm, cmake, test, thunderstore]
+    pre=[download, extract, makefile, nrm, cmake, build, thunderstore]
 )
 def all(c: Context):
     """

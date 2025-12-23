@@ -21,8 +21,8 @@ class ModTomlJob(JobBase):
         
         if self.build_dir is None:
             self.build_dir = self.get_elf_path().parent
-            
-        self.mod_output_files[self.get_output_path()] = Path(self.get_output_path().name)
+        
+        self.mod_output_files[Path(self.get_output_path().name)] = self.get_output_path()
     
     def get_path_from_toml(self, rel_path: str | Path) -> Path:
         return self.toml_path.parent.joinpath(rel_path).resolve()

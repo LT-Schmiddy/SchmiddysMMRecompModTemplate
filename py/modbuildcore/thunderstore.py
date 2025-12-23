@@ -8,22 +8,22 @@ from .utils import print_job_header, print_fl
 class ThunderstorePackageJob(JobBase):
     package_file: Path
     manifest: dict[str, str]
-    readme_file: Path
-    changelog_file: Path
+    readme_text: Path
+    changelog_text: Path
     icon_file: Path
     
     def __init__(self,
             package_file: Path,
             manifest: dict,
-            readme_file: Path,
-            changelog_file: Path,
+            readme_text: Path,
+            changelog_text: Path,
             icon_file: Path,
         ):
         super().__init__()
         self.package_file = package_file
         self.manifest = manifest
-        self.readme_file = readme_file
-        self.changelog_file = changelog_file
+        self.readme_text = readme_text
+        self.changelog_text = changelog_text
         self.icon_file = icon_file
         
     def run(self, c: Context):
@@ -31,10 +31,10 @@ class ThunderstorePackageJob(JobBase):
         # Thunderstore Metadata:
         output_file = zipfile.ZipFile(self.package_file, 'w', zipfile.ZIP_DEFLATED)
         output_file.writestr("manifest.json", json.dumps(self.manifest, indent=4))
-        output_file.write(self.readme_file, "README.md")
-        output_file.write(self.changelog_file, "CHANGELOG.md")
+        output_file.writestr("README.md", self.readme_text)
+        output_file.writestr("CHANGELOG.md", self.changelog_text)
         output_file.write(self.icon_file, "icon.png")
         
-        for src, dst in self.get_recursive_mod_outputs().items():
+        for dst, src in self.get_recursive_mod_outputs().items():
             print_fl(f"Adding '{src}' as '{dst}'...")
             output_file.write(src, dst)
