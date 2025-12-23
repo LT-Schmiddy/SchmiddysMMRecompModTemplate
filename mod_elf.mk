@@ -38,7 +38,7 @@ else
 endif
 
 $(C_OBJS): $(_BUILD_DIR)/%.o : %.c | $(BUILD_DIRS)
-	$(_MIPS_CC) $(CFLAGS) $(CPPFLAGS) $< $(_PY_BUILD_FLAGS) -MMD -MF $(@:.o=.d) -c -o $@
+	$(_MIPS_CC) $(CFLAGS) $(CPPFLAGS) $< -MMD -MF $(@:.o=.d) -c -o $@
 
 clean:
 ifeq ($(OS),Windows_NT)

@@ -27,12 +27,11 @@ thunderstore_packages: dict[str, ThunderstorePackageJob] = {}
 
 nrm_path_fix_by_default = False
 
-# If you need this enabled, you should probably rethink whatever it is you're doing:
 # Convienience function for downloading compiler artifacts.
 def add_archive_download_and_extract(name: str, url: str, extract_dir: Path) -> tuple[DownloadJob, ArchiveExtractJob]:
     global archive_extractions, downloads, archive_downloads_dir
     
-    new_download = DownloadJob(url, archive_downloads_dir, True)
+    new_download = DownloadJob(url, archive_downloads_dir)
     new_extraction = ArchiveExtractJob(new_download.download_path, extract_dir)
     new_extraction.depends_on([new_download])
     downloads[name] = new_download
@@ -59,16 +58,6 @@ if platform.system() == "Windows":
     zig_dir_path = binaries_dir.joinpath("zig_win/zig-x86_64-windows-0.14.1")
     zig_bin_path = zig_dir_path.joinpath("zig.exe")
     
-
-    add_archive_download_and_extract(
-        "llvm",
-        "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz",
-        binaries_dir.joinpath("llvm_win")
-    )
-    
-    llvm_path = binaries_dir.joinpath("llvm_win/clang+llvm-19.1.7-x86_64-pc-windows-msvc")
-        
-    
 elif platform.system() == "Darwin":
     add_archive_download_and_extract(
         "llvmmips",
@@ -86,14 +75,6 @@ elif platform.system() == "Darwin":
     )
     zig_dir_path = binaries_dir.joinpath("zig_linux/zig-aarch64-macos-0.14.1")
     zig_bin_path = zig_dir_path.joinpath("zig")
-    
-    
-    add_archive_download_and_extract(
-        "llvm",
-        "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-macOS-ARM64.tar.xz",
-        binaries_dir.joinpath("llvm_macos")
-    )
-    llvm_path = binaries_dir.joinpath("llvm_macos/LLVM-19.1.7-macOS-ARM64")
     
 else:
     add_archive_download_and_extract(
@@ -113,13 +94,6 @@ else:
     )
     zig_dir_path = binaries_dir.joinpath("zig_linux/zig-x86_64-linux-0.14.1")
     zig_bin_path = binaries_dir.joinpath("zig")
-    
-    add_archive_download_and_extract(
-        "llvm",
-        "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-Linux-X64.tar.xz",
-        binaries_dir.joinpath("llvm_linux")
-    )
-    llvm_path = binaries_dir.joinpath("llvm_linux/LLVM-19.1.7-Linux-X64")
 
 # Registering asset_archive extraction
 assets_archive_path = root_dir.joinpath("assets_archive.zip")
@@ -128,7 +102,6 @@ archive_extractions['assets'] = ArchiveExtractJob(assets_archive_path, assets_ex
 
 # Registering mod toml files to build
 # Main NRM
-
 main_toml = ModTomlJob(mod_tool_path, root_dir.joinpath("mod.toml"))
 mod_tomls['mod'] = main_toml
 makefiles['mod'] = MakefileJob(
@@ -139,8 +112,7 @@ makefiles['mod'] = MakefileJob(
         "_BUILD_DIR": str(mod_tomls['mod'].get_elf_path().parent),
         "_MIPS_CC": str(make_mips_compiler_path),
         "_MIPS_LD": str(make_mips_linker_path),
-        "_SRC_DIR": "src/mod",
-        "_PY_BUILD_FLAGS": "-DRECOMP_PY_BUILD_MODE"
+        "_SRC_DIR": "src/mod"
     }
 )
 main_toml.depends_on([archive_extractions["llvmmips"], makefiles['mod']])
@@ -289,7 +261,7 @@ def package_url_from_git() -> str:
     else:
         return None
 
-thunderstore_package_name = "RecompExternalPython_for_Zelda64Recompiled"
+thunderstore_package_name = "test_package"
 main_package = ThunderstorePackageJob(
     root_dir.joinpath(f"{thunderstore_package_name}.thunderstore.zip"),
     {

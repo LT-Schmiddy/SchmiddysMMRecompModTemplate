@@ -56,7 +56,7 @@ native_libraries = [
 [inputs]
 
 # Input elf file to generate a mod from.
-elf_path = "build/mod.elf"
+elf_path = "build/mod/mod.elf"
 
 # Output mod filename.
 mod_filename = "mm_recomp_mod_template"

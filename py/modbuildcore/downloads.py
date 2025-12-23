@@ -10,13 +10,15 @@ class DownloadJob(JobBase):
     download_path: Path
     force: bool
     
-    def __init__(self, url: str, download_path: Path, append_url_filename: bool=True):
+    def __init__(self, url: str, download_path: Path, *, append_url_filename: bool=True):
         super().__init__()
         self.url = url
         self.download_path = download_path
         self.force = False
+        
         if (append_url_filename):
             self.download_path = self.download_path.joinpath(self.get_filename_from_url())
+        
         
     def get_filename_from_url(self) -> Path:
         parsed_url = urllib.parse.urlparse(self.url)

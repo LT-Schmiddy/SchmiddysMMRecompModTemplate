@@ -64,3 +64,6 @@ class JobBase:
             retVal.update(i.get_recursive_mod_outputs(include_unresolved_jobs, False))
         
         return retVal
+    
+    def add_mod_output_files(self, files: dict[Path, Path]):
+        self.mod_output_files.update(files)
