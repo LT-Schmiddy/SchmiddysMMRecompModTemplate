@@ -103,7 +103,14 @@ if platform.system() == "Windows":
         binaries_dir.joinpath("zig_win")
     )
     zig_dir_path = binaries_dir.joinpath("zig_win/zig-x86_64-windows-0.14.1")
-    zig_bin_path = zig_dir_path.joinpath("zig.exe")
+    
+    add_archive_download_and_extract(
+        "llvm",
+        "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/clang+llvm-19.1.7-x86_64-pc-windows-msvc.tar.xz",
+        binaries_dir.joinpath("llvm_win")
+    )
+    
+    llvm_path = binaries_dir.joinpath("llvm_win/clang+llvm-19.1.7-x86_64-pc-windows-msvc")
     
 elif platform.system() == "Darwin":
     add_archive_download_and_extract(
@@ -121,7 +128,13 @@ elif platform.system() == "Darwin":
         binaries_dir.joinpath("zig_macos")
     )
     zig_dir_path = binaries_dir.joinpath("zig_linux/zig-aarch64-macos-0.14.1")
-    zig_bin_path = zig_dir_path.joinpath("zig")
+    
+    add_archive_download_and_extract(
+        "llvm",
+        "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-macOS-ARM64.tar.xz",
+        binaries_dir.joinpath("llvm_macos")
+    )
+    llvm_path = binaries_dir.joinpath("llvm_macos/LLVM-19.1.7-macOS-ARM64")
     
 else:
     add_archive_download_and_extract(
@@ -140,7 +153,13 @@ else:
          binaries_dir.joinpath("zig_linux")
     )
     zig_dir_path = binaries_dir.joinpath("zig_linux/zig-x86_64-linux-0.14.1")
-    zig_bin_path = binaries_dir.joinpath("zig")
+    
+    add_archive_download_and_extract(
+        "llvm",
+        "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-Linux-X64.tar.xz",
+        binaries_dir.joinpath("llvm_linux")
+    )
+    llvm_path = binaries_dir.joinpath("llvm_linux/LLVM-19.1.7-Linux-X64")
 
 # Registering asset_archive extraction, and associated variables.
 assets_archive_path = root_dir.joinpath("assets_archive.zip")
@@ -209,7 +228,7 @@ extlib = CMakeProjectConfig(
     {
         # Unlike with the makefile, we're gonna prepend the ZIG directory to the PATH that CMake recieves.
         # I could probably things this way for the makefile as well...
-        "PATH": prepend_to_env_path([zig_dir_path]),
+        "PATH": prepend_to_env_path([llvm_path.joinpath("bin"), zig_dir_path]),
         "LIB_NAME": extlib_name # The actual environmental variable that CMake looks at for the extlib name
     }
 )
@@ -334,6 +353,10 @@ cmake_build_groups["native-MinSizeRel"] = {
     "Native": CMakeBuildJob.from_preset_pair(extlib, native_output_files("MinSizeRel"), native_preset_name("MinSizeRel")),
 }
 
+for group_key, group in cmake_build_groups.items():
+    for build_key, build in group.items():
+        build.depends_on([archive_extractions["llvm"]])
+
 # ============== Build Output and Packaging ==============
 
 # BuildOutputJobs are used to copy the mod_output_files from other jobs into a single, convenient directory. 
@@ -406,7 +429,6 @@ main_package.depends_on([
 # all Thunderstore packages defined in `thunderstore_packages`.
 thunderstore_packages['package'] = main_package
 # Note that the default GitHub Actions CI automatically invokes the and publishes the ThunderstorePackageJob with the key "package".
-
 
 # ============== Misc ==============
 # Here we define the files and directories that should be deleted for a clean and a distclean.
