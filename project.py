@@ -217,7 +217,7 @@ extlib = CMakeProjectConfig(
 # While build jobs could be defined manually (passing in the configuration and build arguments directly to the CMakeBuildJob contructor),
 # This template features an extensive CMakePresets.json which contains all the different build variations, which is what we'll use.
 # With that in mind, this is a helper function that determines the output directories for the binaries that CMake will produce, following
-# The conventions in our preset file.
+# the conventions in our preset file.
 def get_preset_lib_path(preset_name: str) -> Path:
     global root_dir
     return root_dir.joinpath(f"build/{preset_name}/lib")
@@ -379,7 +379,7 @@ def package_url_from_git() -> str:
 # Here we define the main Thunderstore package we want to produce.
 # The ThunderstorePackageJob collects all the mod_output_files and stores them in a zip archive, along with
 # the required metadata for a Thunderstore package.
-thunderstore_package_name = "test_package"
+thunderstore_package_name = main_toml.data["manifest"]["id"]
 main_package = ThunderstorePackageJob(
     # The GitHub Actions CI Workflows assume the uploaded package will have the following naming scheme:
     #  name_in_package_manifest.thunderstore.zip
