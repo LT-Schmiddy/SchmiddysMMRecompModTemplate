@@ -72,6 +72,7 @@ Mods can also be made with newer versions of the Majora's Mask decompilation ins
 To update the commit of the decompilation that you're targeting, follow these steps:
 
 * Build the [N64Recomp](https://github.com/N64Recomp/N64Recomp) repo and copy the N64Recomp executable to the root of this repository.
+  * Make sure you pass `KEEP_MDEBUG=1` to `make` when building the decomp in order to keep debug information. This must be done from a clean build if you have built the decomp already without `KEEP_MDEBUG=1`.
 * Build the version of the Majora's Mask decompilation that you want to update to and copy the resulting .elf file to the root of this repository.
 * Update the `mm-decomp` submodule in your clone of this repo to point to the commit you built in the previous step.
 * Run `N64Recomp generate_symbols.toml --dump-context`

@@ -6,3 +6,11 @@ entrypoint = 0x80080000
 output_func_path = "RecompiledFuncs"
 relocatable_sections_path = "overlays.us.rev1.txt"
 elf_path = "mm-n64-us.elf"
+use_mdebug = true
+
+[patches]
+
+# Ignore sGameOverTimer, as it has incorrect mdebug info due to decomp preprocessing the object to move .data into .rodata.
+ignored = [
+    "sGameOverTimer"
+]
