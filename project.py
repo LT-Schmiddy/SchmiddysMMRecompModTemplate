@@ -8,6 +8,7 @@ from modbuildcore.jobs import *
 
 # If you declare a job, add it to one of these dicts to make it directly invokable from the command line.
 # Jobs are considered 'resolved' if the job is run, or if it's determined the job doesn't need to run.
+# For example, a download is 'resolved' if the download is run, or if the downloaded file is already present.
 # When a job is run, it will automatically resolve any other jobs it depends on. However, the root job must still be invoked 
 # (meaning you need to add it to one of these dicts, and run ./modbuild.py with the appropriate subcommand). If a job is 
 # resolved by determining it doesn't need to run, the dependency jobs will also not be resolved, as it is assumed those jobs
@@ -351,9 +352,9 @@ debug_test_dir.depends_on([
 ] + [i for i in cmake_build_groups["Debug"].values()])
 # You can also declare additional files to include using `debug_test_dir.add_mod_output_files(...)` method.
 
-# Updating build outputs is the default behavior of invoking './modbuild.py' without arguments.
+# Updating build outputs is the default behavior of invoking `./modbuild.py` without arguments.
 # If dependencies were set up correctly, a single invokation will run all jobs necessary to produce
-# build output folders defined in `build_outputs`.
+# all build output folders defined in `build_outputs`.
 build_outputs["debug"] = debug_test_dir
 
 # Helper function to find the URL for your GitHub repo. Used to generate Thunderstore packages.
@@ -375,12 +376,17 @@ def package_url_from_git() -> str:
     else:
         return None
 
+# Here we define the main Thunderstore package we want to produce.
+# The ThunderstorePackageJob collects all the mod_output_files and stores them in a zip archive, along with
+# the required metadata for a Thunderstore package.
 thunderstore_package_name = "test_package"
 main_package = ThunderstorePackageJob(
+    # The GitHub Actions CI Workflows assume the uploaded package will have the following naming scheme:
+    #  name_in_package_manifest.thunderstore.zip
     root_dir.joinpath(f"{thunderstore_package_name}.thunderstore.zip"),
     {
         "name": thunderstore_package_name,
-        "version_number": main_toml.data["manifest"]["version"],
+        "version_number": main_toml.data["manifest"]["version"], # We'll read the version number from the mod toml.
         "website_url": package_url_from_git(),
         "description": "An advanced template for recomp mods",
         "dependencies": []
@@ -389,11 +395,21 @@ main_package = ThunderstorePackageJob(
     root_dir.joinpath("thunderstore_info/CHANGELOG.md").read_text(),
     root_dir.joinpath("thumb.png")
 )
+
+# To include mod_output_files from other jobs in the build output, add those jobs as dependencies.
 main_package.depends_on([
     mod_tomls['mod']
 ] + [i for i in cmake_build_groups["Release"].values()])
-thunderstore_packages['package'] = main_package
+# You can also declare additional files to include using `debug_test_dir.add_mod_output_files(...)` method.
 
+# If dependencies were set up correctly, invoking `./modbuild.py thunderstore` will run all jobs necessary to produce
+# all Thunderstore packages defined in `thunderstore_packages`.
+thunderstore_packages['package'] = main_package
+# Note that the default GitHub Actions CI automatically invokes the and publishes the ThunderstorePackageJob with the key "package".
+
+
+# ============== Misc ==============
+# Here we define the files and directories that should be deleted for a clean and a distclean.
 clean_paths: list[Path] = [
     build_dir
 ]

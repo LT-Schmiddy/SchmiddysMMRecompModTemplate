@@ -37,7 +37,7 @@ def download(c: Context, skip_dependencies: bool = False, force: bool = False, n
     
     By default, downloads will be skipped (and considered unresolved) if the destination file already exists.
     
-    Unless manually specified, downloaded files do not count as 'mod output files' and are not collected by BuildOutputJobs or ThunderstorePackageJobs.
+    Unless manually specified, downloaded files do not count as mod_output_files and are not collected by BuildOutputJobs or ThunderstorePackageJobs.
     """
     print_task_header("Performing downloads...")
     
@@ -63,7 +63,7 @@ def extract(c: Context, skip_dependencies: bool = False, force: bool = False, na
     
     By default, extractions will be skipped (and considered unresolved) if the destination folder already exists.
     
-    Unless manually specified, extracted files/folders do not count as 'mod output files' and are not collected by BuildOutputJobs or ThunderstorePackageJobs.
+    Unless manually specified, extracted files/folders do not count as'mod_output_files and are not collected by BuildOutputJobs or ThunderstorePackageJobs.
     """
     print_task_header("Extracting archives...")
     
@@ -108,7 +108,7 @@ def makefile(c: Context, skip_dependencies: bool = False, name: str = None):
 )
 def nrm(c: Context, skip_dependencies: bool = False, name: str = None, path_fix: bool = p.nrm_path_fix_by_default):
     """
-    Builds .nrm files from .toml files, as specified in `project.mod_tomls`. The resultant .nrms are counted as 'mod output files'.
+    Builds .nrm files from .toml files, as specified in `project.mod_tomls`. The resultant .nrms are counted as 'mod_output_files'.
     Entries in `project.mod_tomls` should be instances of `modbuildcore.makefiles.ModTomlJob`. 
     """
     print_task_header("Building NRM files...")
@@ -135,7 +135,7 @@ def cmake(c: Context, skip_dependencies: bool = False, group_name: str = None, b
     Run CMakeBuildJobs by group, as specified in  `project.cmake_build_groups`. If no group argument is specified, all groups are run.
     Build groups are entries in `project.cmake_build_groups` and should be `dict[str, modbuildcore.cmake.CMakeBuildJobs]`.
     
-    CMakeBuildJobs have 'mod output files' specified on creation.
+    CMakeBuildJobs have 'mod_output_files' specified on creation.
     """
     print_task_header("Running CMake builds...")
     global _built_cmake_handlers
@@ -166,7 +166,7 @@ def cmake(c: Context, skip_dependencies: bool = False, group_name: str = None, b
 )
 def build(c: Context, skip_dependencies: bool = False, unresolved_jobs: bool = False, all_resolved_jobs: bool = False, name: str=None):
     """
-    Updates BuildOutputJob folder(s) with their defined mod output files, and the output files from any jobs they depend on, as specified in `project.build_outputs`. 
+    Updates BuildOutputJob folder(s) with their defined mod_output_files, and the output files from any jobs they depend on, as specified in `project.build_outputs`. 
     Entries in `project.build_outputs` should be instances of `modbuildcore.build_output.BuildOutputJob`. 
     
     By default, only dependency jobs that have been resolved this execution will have their files updated. 
@@ -222,8 +222,8 @@ def manifest(c: Context, name: str = None, output_file: str = None):
 
 @task (
     help={
-        'skip_dependencies': "Do not try to resolve dependency jobs.",
-        'name': f"Only build specific Thunderstore packages. Names should be the keys used in `project.thunderstore_packages`, separated by '{ARG_SPLIT_CHAR}'."
+        'skip_dependencies': "Do not try to resolve dependency jobs. This will not effect included mod_output_files",
+        'name': f"Only build specific Thunderstore packages. Names should be the keys used in `project.thunderstore_packages`, separated by '{ARG_SPLIT_CHAR}'. Do not use the package name in the Thunderstore manifest."
     }
 )
 def thunderstore(c: Context, skip_dependencies: bool = False, name: str = None):
