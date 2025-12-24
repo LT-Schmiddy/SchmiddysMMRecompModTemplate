@@ -1,4 +1,4 @@
-import tomllib, pathlib, os
+import shutil, os
 from pathlib import Path
 
 from invoke import Context
@@ -11,9 +11,12 @@ class MakefileJob(JobBase):
     makefile_path: Path
     extended_env: dict[str, str]
     
-    def __init__(self, make_binary_path: Path, makefile_path: Path, extended_env: dict[str, str]):
+    def __init__(self, makefile_path: Path, extended_env: dict[str, str], *, make_binary_path: Path = None):
         super().__init__()
-        self.make_binary_path = make_binary_path
+        if make_binary_path is None:
+            self.make_binary_path = shutil.which("make")
+        else:
+            self.make_binary_path = make_binary_path
         self.makefile_path = makefile_path
         self.extended_env = extended_env
     

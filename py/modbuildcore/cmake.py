@@ -1,4 +1,4 @@
-import pathlib, os
+import shutil, os
 from pathlib import Path
 
 from invoke import Context
@@ -11,8 +11,11 @@ class CMakeProjectConfig:
     project_working_dir: Path
     extended_env: dict[str, str]
     
-    def __init__(self, cmake_binary_path: Path, project_working_dir: Path, expanded_env: dict[str, str]):
-        self.cmake_binary_path = cmake_binary_path
+    def __init__(self, project_working_dir: Path, expanded_env: dict[str, str], *, cmake_binary_path: Path = None):
+        if cmake_binary_path is None:
+            self.cmake_binary_path = shutil.which("cmake")
+        else:
+            self.cmake_binary_path = cmake_binary_path
         self.project_working_dir = project_working_dir
         self.extended_env = expanded_env
 

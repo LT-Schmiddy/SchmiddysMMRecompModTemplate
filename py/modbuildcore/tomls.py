@@ -11,11 +11,10 @@ class ModTomlJob(JobBase):
     run_nrm_path_fix: bool
     build_dir: Path
     
-    def __init__(self, mod_tool_path: Path, toml_path: Path, run_nrm_path_fix: bool = False, build_dir: Path = None):
+    def __init__(self, mod_tool_path: Path, toml_path: Path, build_dir: Path = None):
         super().__init__()
         self.mod_tool_path = mod_tool_path    
         self.toml_path = toml_path
-        self.run_nrm_path_fix = run_nrm_path_fix
         self.build_dir = build_dir
         self.data = tomllib.loads(self.toml_path.read_text())
         
@@ -23,6 +22,8 @@ class ModTomlJob(JobBase):
             self.build_dir = self.get_elf_path().parent
         
         self.mod_output_files[Path(self.get_output_path().name)] = self.get_output_path()
+        
+        self.run_nrm_path_fix = False
     
     def get_path_from_toml(self, rel_path: str | Path) -> Path:
         return self.toml_path.parent.joinpath(rel_path).resolve()
