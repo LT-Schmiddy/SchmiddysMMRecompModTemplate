@@ -7,7 +7,6 @@ prog_root = Path(__file__).parent
 sys.path.append(str(prog_root.joinpath("py")))
 
 # Program startup:
-
 from invoke import Collection, __version__, Program, Argument
 from invoke.config import Config, merge_dicts
 
@@ -29,7 +28,6 @@ class ModBuildProgram(Program):
         return core_args + extra_args
 
 if __name__ == '__main__':
-    
     program = ModBuildProgram(
         name="Mod Builder",
         binary="modbuild.py",

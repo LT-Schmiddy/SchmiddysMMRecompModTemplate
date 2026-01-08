@@ -6,11 +6,22 @@ from .job_base import JobBase
 from .utils import print_job_header
 
 class DownloadJob(JobBase):
+    """This job downloads a file from the internet to a location. Does not need to run if the downloaded file already exists.
+    
+    The downloaded file is not counted as mod_output_file by default.
+    """
     url: str
     download_path: Path
     force: bool
     
     def __init__(self, url: str, download_path: Path, *, append_url_filename: bool=True):
+        """Initializes the DownloadJob.
+
+        Args:
+            url (str): The URL to download from.
+            download_path (Path): The destination for the download.
+            append_url_filename (bool, optional): If true, `download_path` is treated as a directory, and the filename from the URL is appended. Defaults to True.
+        """
         super().__init__()
         self.url = url
         self.download_path = download_path

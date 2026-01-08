@@ -220,7 +220,7 @@ def prepend_to_env_path(to_append: Path) -> str:
 # That way, we can have a single source for truth for the name, and changing it is easy.
 # We'll also need that name for some other declarations later, so we'll store it in a variable here.
 # This template reads the name of the first extlib declared in the main toml, and uses that as the CMake project name.
-extlib_name = main_toml.data["manifest"]["native_libraries"][0]["name"]
+extlib_name = main_toml.data["manifest"]["native_libraries"][0]["name"] 
 
 # CMakeProjectConfig defines information that will be common between lots of CMakeBuildJob instances.
 extlib = CMakeProjectConfig(

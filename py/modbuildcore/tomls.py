@@ -6,12 +6,26 @@ from .job_base import JobBase
 from .utils import invoke_subprocess_run, print_job_header
 
 class ModTomlJob(JobBase):
+    """Run the RecompModTool to generate an .nrm file from a .toml.
+    
+    The generated .nrm file will automatically be considered a mod_output_file.
+    """
     mod_tool_path: Path
     toml_path: Path
     run_nrm_path_fix: bool
     build_dir: Path
+    data: dict
     
     def __init__(self, mod_tool_path: Path, toml_path: Path, build_dir: Path = None):
+        """Initializes the ModTomlJob. 
+        
+        The .toml file is read when this job is initialized, meaning you can access the information in the .toml using `self.data`.
+
+        Args:
+            mod_tool_path (Path): The path to the RecompModTool binary.
+            toml_path (Path): The path to the .toml file to pass to RecompModTool.
+            build_dir (Path, optional): The path to the build directory to pass to RecompModTool. If None, uses the directory of the input .elf binary specified by the .toml file. Defaults to None.
+        """
         super().__init__()
         self.mod_tool_path = mod_tool_path    
         self.toml_path = toml_path
