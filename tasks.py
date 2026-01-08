@@ -1,3 +1,6 @@
+## This file is a `tasks.py` file for the pyinvoke library, which modbuild.py is powered by. 
+## See this URL for documentation: https://docs.pyinvoke.org/en/stable/
+
 import sys
 if __name__ == '__main__':
     print(f"Wrong file! This is the pyinvoke tasks file for the `modbuild.py` tool. Run `python[3] ./modbuild.py` to use it.")
