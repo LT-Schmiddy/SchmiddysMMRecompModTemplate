@@ -50,19 +50,23 @@ All commands are defined in `tasks.py`, in accordance to the `pyinvoke` library.
 
 (Don't worry, there are no Python packages you need to install. All of the required Python code has been incorperated into this template).
 
-## Advanced Usage
+## Advanced Usage and the Job System:
 
-This template and the default `tasks.py` file work on a system of defining inter-dependent jobs; you declare which job(s) you want to run when invoking `./modbuild.py`
-(each subcommand will run all specified jobs of a type by default), and the job system runs all dependency jobs as needed. These jobs and relationships are specified in
-`project.py`.
+This template and the default `tasks.py` file work on a system of defining inter-dependent jobs. Jobs are used to define what downloads and extractions to perform, what
+makefiles to run, which .nrms to build, which CMake builds to compile, what output folders to prepare, and what Thunderstore packages to create. These jobs and relationships
+are specified in `project.py`. When invoking `./modbuild.py`, you declare which job(s) you want to run (each subcommand will run all specified jobs of a type by default), and
+the job system runs all dependency jobs as needed.
 
 For most projects, you should be fine with one of the three example `project.py` files provided in `./EXAMPLES` (one is a .nrm only version, and the other two build extlibs),
-but if you need to make other changes (such as adding additional NRMs to be built, CMake builds to run, downloads and extractions to perform, Thunderstore packages to create, etc), that file is fully commented to explain how everything works. The JobBase class and job subclasses (found in `./py/modbuildcore`) are also documented to explain their use.
+but if you need to make other changes (for example, you want to declare an additional .nrm to be built as part of the project), that file is fully commented to explain how
+everything works. The JobBase class and job subclasses (found in `./py/modbuildcore`) are also documented to explain their use.
 
 The default dependencies are set up to be intuitive: for instance, Makefiles that use the N64RecompEssentials compilers depend on that extraction job, and the
 extraction job depend on the download job. CMake builds that depend on Zig depend on those download and extraction jobs as well.
 
 The default `project.py` file at the root of this repo is the same as `nrm_and_zig_extlib` example.
+
+One additional note: Thunderstore package manifests are Python `dict` objects passed to a ThunderstorePackageJob, so you'll need to modify that job's declaration in `project.py` to edit your Thunderstore manifest. In all provided examples, the Thunderstore package manifest information is generated from information in `./mod.toml`.
 
 ## Testing
 
