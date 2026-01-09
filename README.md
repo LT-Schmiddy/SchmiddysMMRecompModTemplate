@@ -4,9 +4,9 @@ This my custom version of the Majora's Mask: Recompiled mod template. It offers 
 
 * Optional building of external libraries (referred to as extlibs) alongside the mod nrm, and keeping the code for both in the same repository.
 * Cross-compilation of extlibs using Zig (extlib code is still written in C/C++).
-* Dedicated testing environment for mods in the form of the `runtime` directory.
-* Automatic creation of Thunderstore packages via a script, or by running `make thunderstore`.
-* Easy integration of non-standard clang versions (such the MIPS-only `clang` package I maintain), in case your system `clang` doesn't support MIPS.
+* Dedicated testing environment for mods in the form of the `test_env` directory.
+* Automatic creation of Thunderstore packages via a single command.
+* Automatic downloading and usage of [the MIPS-only `clang` package I maintain](https://github.com/LT-Schmiddy/n64recomp-clang), along with the RecompModTool and Zig.
 
 ## Writing mods
 
@@ -17,49 +17,52 @@ See [this document](https://hackmd.io/fMDiGEJ9TBSjomuZZOgzNg) for an explanation
 This template has somewhat different requirements from the default mod template. In order to run it, you'll need the following:
 
 * `make`
+* `python` (or `python3` on POSIX systems).
 * `cmake`
 * `ninja`
-* `python` (or `python3` on POSIX systems).
-* `zig`
 
 On Linux and MacOS, you'll need to also ensure that you have the `zip` utility installed.
 
 All of these can (and should) be installed via using [chocolatey](https://chocolatey.org/) on Windows, Homebrew on MacOS, or your distro's package manager on Linux.
 
-**You do NOT need the `RecompModTool` tool, as the build script will compile all of the N64Recomp tools for you.**
+**You do NOT need the `RecompModTool` tool or any additional compilers installed. The build scripting will download all of these for you.**
 
-You'll also need a `gcc` compatible compiler and linker with MIPS support. `clang` and `ld.lld` (part of the llvm toolset) are recommended.
+The default configuration (as well as the example configurations) will download the N64RecompEssentials package from [here](https://github.com/LT-Schmiddy/n64recomp-clang)
+for your platform, which contains the `RecompModTool` and the MIPS-only LLVM 21 `clang` and `ld.lld` compiler and linker pair for your system.
 
-* On Windows, using [chocolatey](https://chocolatey.org/) to install both is recommended. The packages are `llvm` and `make` respectively.
-  * The LLVM 19.1.0 [llvm-project](https://github.com/llvm/llvm-project) release binary, which is also what chocolatey provides, does not support MIPS correctly. The solution is to install 18.1.8 instead, which can be done in chocolatey by specifying `--version 18.1.8` or by downloading the 18.1.8 release directly.
-* On Linux, these can both be installed using your distro's package manager. You may also need to install your distro's package for the `lld` linker. On Debian/Ubuntu based distros this will be the `lld` package.
-* On MacOS, these can both be installed using Homebrew. Apple clang won't work, as you need a mips target for building the mod code.
-
-Alternatively, if you don't want to downgrade your clang version (or want a later version than what's provided for your system), I maintain [MIPS-only builds of the latest llvm utilities](https://github.com/LT-Schmiddy/n64recomp-clang/releases/latest). They're what I use. I recommend the `N64RecompEssentials` packages, as they only have the tools that are useful for working with recomp mods.
+It will also download Zig 0.14 for project configurations that require it. This is done because Zig's packaging is inconsistent across ecosystems, but the compiler
+itself is thankfully small.
 
 ## Building
 
-Run `git submodule update --init --recursive` to make sure you've clones all submodules. Then, run `make` (with an optional job count) to build everything.
+TL;DR: Run `git submodule update --init --recursive` to make sure you've clones all submodules. Then, run `./modbuild.py` to prepare a debug build.
+Run `./modbuild.py thunderstore` to create a Thunderstore package.
 
-Alternatively, you can also use special target invokations to only build specific things, such as the mod `.nrm` file or the extlib for a specific platform.
-See the Makefile for all valid targets.
+Due to issues where certain complex tasks become difficult to do in a cross-platform way using Make (and trying invoke Python functions from Make resulted in some
+of the worse spaghetti code, I've ever written), I've decided to not have Make be the entrypoint for the build process. Instead, I've turned to a lightweight,
+Make-inspired Python library called `pyinvoke` to help me create an all-inclusive build script: `modbuild.py`. This script is capable of building the entire project
+from scratch, or simply running parts of the build process depending on the subcommands and their arguments.
 
-This repo is set up for building an extlib by default. If your mod isn't meant to have an extlib, simply remove the `extlib_compilation` section from your
-`mod.toml`, and the build scripts will disable all extlib handling when building the `all` target.
+You can run `./modbuild.py -h` or `./modbuild.py [subcommand] -h` for usage information on the script and various subcommands.
 
-On your first run, a file called `user_build_config.json` will be created at the root of the repo. Here you can set the command/path for the compiler and linker
-you want to use for your mod code. If you want to use my MIPS-only clang builds (or any compiler not on the system path), this is an easy way to set them up.
-You can also set which CMake presets you want to use for building your external library.
+All commands are defined in `tasks.py`, in accordance to the `pyinvoke` library. See that documentation at
+[https://docs.pyinvoke.org/en/stable/](https://docs.pyinvoke.org/en/stable/) for info on how to define additional commands.
 
-## Extlib Compilation, Cross-Compilation, and CMake Presets
+(Don't worry, there are no Python packages you need to install. All of the required Python code has been incorperated into this template).
 
-This template is set up to automatically build and cross-compile your extlib code (via CMake and Zig) alongside your mod code when you invoke `make`.
-CMake presets are used to handle any configuration differences between target platforms ([More info about CMake presets can be found
-here](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html)). The default presets to use for each can be set in the `extlib_compiling`
-section of your `mod.toml`. These are copied into `user_build_config.json` when the file is created. If you want to use a different preset for
-a platform when compiling on your local system, without changing the default, you can change the preset in `user_build_config.json`.
+## Advanced Usage
 
-More information about extlib compiling can be found in the `mod.toml` file.
+This template and the default `tasks.py` file work on a system of defining inter-dependent jobs; you declare which job(s) you want to run when invoking `./modbuild.py`
+(each subcommand will run all specified jobs of a type by default), and the job system runs all dependency jobs as needed. These jobs and relationships are specified in
+`project.py`.
+
+For most projects, you should be fine with one of the three example `project.py` files provided in `./EXAMPLES` (one is a .nrm only version, and the other two build extlibs),
+but if you need to make other changes (such as adding additional NRMs to be built, CMake builds to run, downloads and extractions to perform, Thunderstore packages to create, etc), that file is fully commented to explain how everything works. The JobBase class and job subclasses (found in `./py/modbuildcore`) are also documented to explain their use.
+
+The default dependencies are set up to be intuitive: for instance, Makefiles that use the N64RecompEssentials compilers depend on that extraction job, and the
+extraction job depend on the download job. CMake builds that depend on Zig depend on those download and extraction jobs as well.
+
+The default `project.py` file at the root of this repo is the same as `nrm_and_zig_extlib` example.
 
 ## Testing
 
