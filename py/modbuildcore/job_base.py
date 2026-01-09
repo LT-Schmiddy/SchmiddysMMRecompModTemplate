@@ -124,7 +124,7 @@ class JobBase:
 
         Args:
             include_unresolved_jobs (bool, optional): If True, skip any dependency job that wasn't resolved. Defaults to True.
-            root_call (bool, optional): Include this job regardless of whether it was resolved. Defaults to True.
+            include_self (bool, optional): Include this job regardless of whether it was resolved. Defaults to True.
 
         Returns:
             dict[Path, Path]: The combined mod_output_files. The key will be the desired file location in the output, the value will be the path in the project.
