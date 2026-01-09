@@ -70,8 +70,7 @@ One additional note: Thunderstore package manifests are Python `dict` objects pa
 
 ## Testing
 
-This template includes handling of a dedicated testing environment for you mod in the form of the `./runtime` folder. First, create `./runtime` in your
-mod's root directory and copy in recomp's `assets` directory into it (You can also copy anyu config files, saves, and other mods you want to test against). After a build, your mod's `.nrm` file (and extlib file, if one is being built) will be copied to a folder called `./runtime/mods`, and a file called `./runtime/portable.txt` will be created. Then, if you use `runtime` and as your CWD, everything's ready to go for immediate testing as soon as your build finishes.
+This template includes handling of a dedicated testing environment for you mod in the form of the `./test_env` folder. Copy in recomp's `assets` directory into it (You can also copy any config files, saves, and other mods you want to test against). After a build, your mod's `.nrm` file (and extlib file, if one is being built) will be copied to a folder called `./test_env/mods`. Then, if you use `test_env` and as your CWD, everything's ready to go for immediate testing as soon as your build finishes.
 
 ## Updating the Majora's Mask Decompilation Submodule
 
