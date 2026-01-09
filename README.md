@@ -39,7 +39,7 @@ TL;DR: Run `git submodule update --init --recursive` to make sure you've clones 
 Run `./modbuild.py thunderstore` to create a Thunderstore package.
 
 Due to issues where certain complex tasks become difficult to do in a cross-platform way using Make (and trying invoke Python functions from Make resulted in some
-of the worse spaghetti code, I've ever written), I've decided to not have Make be the entrypoint for the build process. Instead, I've turned to a lightweight,
+of the worse spaghetti code I've ever written), I've decided to not have Make be the entrypoint for the build process. Instead, I've turned to a lightweight,
 Make-inspired Python library called `pyinvoke` to help me create an all-inclusive build script: `modbuild.py`. This script is capable of building the entire project
 from scratch, or simply running parts of the build process depending on the subcommands and their arguments.
 
@@ -50,7 +50,7 @@ All commands are defined in `tasks.py`, in accordance to the `pyinvoke` library.
 
 (Don't worry, there are no Python packages you need to install. All of the required Python code has been incorperated into this template).
 
-## Advanced Usage and the Job System:
+## Advanced Usage and the Job System
 
 This template and the default `tasks.py` file work on a system of defining inter-dependent jobs. Jobs are used to define what downloads and extractions to perform, what
 makefiles to run, which .nrms to build, which CMake builds to compile, what output folders to prepare, and what Thunderstore packages to create. These jobs and relationships
