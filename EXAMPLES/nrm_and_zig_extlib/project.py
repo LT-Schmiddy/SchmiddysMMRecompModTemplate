@@ -388,7 +388,7 @@ main_package = ThunderstorePackageJob(
         "name": thunderstore_package_name,
         "version_number": main_toml.data["manifest"]["version"], # We'll read the version number from the mod toml.
         "website_url": package_url_from_git(),
-        "description": "An advanced template for recomp mods",
+        "description": main_toml.data["manifest"]["short_description"],
         "dependencies": []
     },
     root_dir.joinpath("thunderstore_info/README.md").read_text(),
