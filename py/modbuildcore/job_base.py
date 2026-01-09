@@ -34,6 +34,7 @@ class JobBase:
     dependencies: list[JobBase]
     mod_output_files: dict[Path, Path]
     
+    # Overridable Functions:
     def __init__(self):
         """
         Base initializer for jobs. Overridable for new job types.
@@ -45,7 +46,7 @@ class JobBase:
         self.dependencies = []
         self.mod_output_files = {}
     
-    # Overridable Functions:
+
     def needs_to_run(self, c: Context) -> bool:
         """Checks if the current job needs to be run. Optionally override when defining your own job type.
         
