@@ -1,15 +1,11 @@
 # To use this workflow, you need to perform some setup on GitHub first in your repository settings.
 # * Under `Actions->General`, set "Workflow permissions" to "Read and write permissions"
-# * Under `Secrets and Variables->Actions->Secrets`, Create a repository secret named THUNDERSTORE_SERVICE_TOKEN with your Thunderstore Service Account token.
-# * Under `Secrets and Variables->Actions->Variables`, Create a repository variable named Compilation with your Thunderstore team name.
-# * * Alternatively, you can just declare your Thunderstore team in this file in the `publish_thunderstore_release` step.
-# * * HOWEVER, NEVER STORE YOUR THUNDERSTORE TOKEN IN THIS FILE. OTHERWISE, OTHER PEOPLE WILL BE ABLE TO UPLOAD MODS/UPDATES AS YOU.
 
-name: Build and Publish mod
+name: Build and Publish Pre-Release
 on:
   push:
     tags:
-      - "release-*.*.*"
+      - "prerelease-*.*.*"
 jobs:
   build:
     outputs:
@@ -25,7 +21,17 @@ jobs:
     - name: Get Apt Packages
       id: get_apt_packages
       run: |-
-        sudo apt install -y cmake make ninja-build python3 jq
+        sudo apt install -y ninja-build jq python3
+
+    - name: Get Snap Packages
+      id: get_snap_packages
+      run: |-
+        sudo snap install cmake --classic
+
+    - name: Print Python Version
+      id: print_python_version
+      run: |-
+        python3 --version
 
     - name: Run Buildscript
       id: run_buildscript
@@ -38,7 +44,7 @@ jobs:
       with:
         name: ThunderstorePackage
         path: |
-          ./thunderstore_package/*
+          ./*.thunderstore.zip
 
     - name: Read Thunderstore Manifest
       id: read_thunderstore_manifest
@@ -60,23 +66,6 @@ jobs:
         name: Release ${{ steps.read_thunderstore_manifest.outputs.version }}
         body_path: ./thunderstore_package/CHANGELOG.md
         files: |
-          ./include_in_dependents/*
           ./*thunderstore.zip
-        make_latest: true
-
-    - name: Publish Thunderstore Release
-      id: publish_thunderstore_release
-      uses: GreenTF/upload-thunderstore-package@v4.3
-      with:
-        repo: thunderstore.io
-        token: ${{ secrets.THUNDERSTORE_SERVICE_TOKEN }}
-        community: zelda-64-recompiled
-        namespace: ${{ vars.THUNDERSTORE_TEAM }} # the thunderstore 'team' to publish under
-        name: ${{ steps.read_thunderstore_manifest.outputs.name }} # the name of the package
-        description: ${{ steps.read_thunderstore_manifest.outputs.description }}
-        version: ${{ steps.read_thunderstore_manifest.outputs.version }}
-        categories: | # valid categories are 'audio', 'misc', 'libraries', 'modpacks', and 'mods'.
-          libraries
-        file: ./${{ steps.read_thunderstore_manifest.outputs.name }}.thunderstore.zip
-
-    
+          ./include_in_dependents/*
+        prerelease: true

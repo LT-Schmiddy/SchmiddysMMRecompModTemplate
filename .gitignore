@@ -1,3 +1,23 @@
+# Directories
+assets_extracted/
+binaries/
+build/
+downloads/
+doxygen/
+test_env/
+venv*/
+__pycache__/**
+
+# Files
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+user_project.py
+CMakeUserPresets.json
+./funcs.h
+patches.map
+
+# Entensions:
 *.d
 *.o
 *.elf
@@ -6,19 +26,10 @@
 *.dll
 *.dylib
 *.so
+*.so.1.0
 *.lib
 *.pdb
 *.exp
 *.pyc
 *.thunderstore.zip
 *.nrm
-./funcs.h
-patches.map
-assets_extracted/
-build/
-runtime/
-.vscode/settings.json
-.vscode/launch.json
-.vscode/tasks.json
-user_build_config.json
-CMakeUserPresets.json
