@@ -145,7 +145,8 @@ else:
 # Registering asset_archive extraction, and associated variables.
 assets_archive_path = root_dir.joinpath("assets_archive.zip")
 assets_extracted_path = root_dir.joinpath("assets_extracted/assets")
-archive_extractions['assets'] = ArchiveExtractJob(assets_archive_path, assets_extracted_path)
+assets_archive_job = ArchiveExtractJob(assets_archive_path, assets_extracted_path)
+archive_extractions['assets'] = assets_archive_job
 
 # ============== Mod Toml/.nrm Building ==============
 
@@ -176,7 +177,7 @@ main_makefile = MakefileJob(
 # We've set the makefile to use the MIPS-only clang and ld.lld that we downloaded and extracted (The 'llvmmips' DownloadJob and ArchiveExtractJob).
 # So, we'll mark this MakefileJob as depending on that ArchiveExtractJob. We don't need to mark it as depending on the DownloadJob,
 # since the ArchiveExtractJob already depends on the DownloadJob.
-main_makefile.depends_on([archive_extractions["llvmmips"]])
+main_makefile.depends_on([archive_extractions["llvmmips"], assets_archive_job])
 
 # Our toml file depends on the makefile to produce the mod elf, so we'll declare that dependency here.
 # It also depends on the RecompModTool we extracted from 'llvmmips', so we declare that dependency too.
