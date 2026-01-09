@@ -288,7 +288,7 @@ for group_key, group in cmake_build_groups.items():
 
 # So far, all the CMakeBuildJob groups have been for cross-compiling the extlib for Windows, Mac, and Linux (regardless of the host system).
 # In some cases, compiling without using Zig can be helpful for debugging, and the CMakePresets.json includes presets for compiling natively
-# Clang. We'll make single-entry build groups for these native presets.
+# via LLVM. We'll make single-entry build groups for these native presets.
 
 # Note that you must have Clang/LLVM installed on your system to use these presets. An alternate version of this project file exists that
 # can automatically download a complete LLVM archive for you (not recommended by default do to size), eliminating this need.
