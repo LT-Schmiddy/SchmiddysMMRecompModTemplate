@@ -178,7 +178,7 @@ debug_test_dir = BuildOutputJob(root_dir.joinpath("test_env/mods"))
 # To include mod_output_files from other jobs in the build output, add those jobs as dependencies.
 debug_test_dir.depends_on([
     mod_tomls['mod'],
-] + [i for i in cmake_build_groups["Debug"].values()])
+])
 # You can also declare additional files to include using `debug_test_dir.add_mod_output_files(...)` method.
 
 # Updating build outputs is the default behavior of invoking `./modbuild.py` without arguments.
@@ -228,7 +228,7 @@ main_package = ThunderstorePackageJob(
 # To include mod_output_files from other jobs in the build output, add those jobs as dependencies.
 main_package.depends_on([
     mod_tomls['mod']
-] + [i for i in cmake_build_groups["Release"].values()])
+])
 # You can also declare additional files to include using `debug_test_dir.add_mod_output_files(...)` method.
 
 # If dependencies were set up correctly, invoking `./modbuild.py thunderstore` will run all jobs necessary to produce
