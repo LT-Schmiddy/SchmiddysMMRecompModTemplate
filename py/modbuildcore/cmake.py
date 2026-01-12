@@ -29,6 +29,9 @@ class CMakeProjectConfig:
         self.extended_env = expanded_env
 
 
+class CMakeBuildJob:
+    ...
+    
 class CMakeBuildJob(JobBase):
     """This job configures and builds a CMake project. The mod_output_files must be manually specified on initialization.
     """
