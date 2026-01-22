@@ -230,7 +230,7 @@ extlib = CMakeProjectConfig(
     {
         # Unlike with the makefile, we're gonna prepend the ZIG directory to the PATH that CMake recieves.
         # I could probably things this way for the makefile as well...
-        "PATH": prepend_to_env_path([llvm_path, zig_dir_path]),
+        "PATH": prepend_to_env_path([llvm_path.joinpath("bin"), zig_dir_path]),
         "LIB_NAME": extlib_name # The actual environmental variable that CMake looks at for the extlib name
     }
 )
