@@ -229,7 +229,7 @@ main_package = ThunderstorePackageJob(
 main_package.depends_on([
     mod_tomls['mod']
 ])
-# You can also declare additional files to include using `debug_test_dir.add_mod_output_files(...)` method.
+# You can also declare additional files to include using `main_package.add_mod_output_files(...)` method.
 
 # If dependencies were set up correctly, invoking `./modbuild.py thunderstore` will run all jobs necessary to produce
 # all Thunderstore packages defined in `thunderstore_packages`.

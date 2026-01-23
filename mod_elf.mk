@@ -1,4 +1,4 @@
-# Arguments from environment (passed in via Python):
+# Arguments from environment (set in project.py):
 _BUILD_DIR ?= 
 _MIPS_CC ?= 
 _MIPS_LD ?= 
